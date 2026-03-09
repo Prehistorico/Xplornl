@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import "../styles/auth.css"
+import "../styles/register.css"
 
 export default function Register(){
 return(

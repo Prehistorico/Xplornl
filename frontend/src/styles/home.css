@@ -22,9 +22,7 @@ height:320px;
 
 .hero-content h1{
 font-size:28px;
-}
-}
-
+}}
 
 .home{
 background:#e6c3a3;
@@ -38,7 +36,7 @@ padding-bottom:40px;
   background-position:center;
   display:flex;
   align-items:center;
-  padding-left:120px;
+  padding-left: 50px;
 }
 
 .hero-content h1{
@@ -74,19 +72,79 @@ padding:30px 100px;
 }
 
 .card{
+  position:relative;
   height:150px;
   border-radius:15px;
-  background-image:url("/assets/watchtower.png");
   background-size:cover;
   background-position:center;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .3s ease;
 }
-@media (max-width:600px){
-.card{height:110px;}}
+@media (max-width:600px){ .card{height:110px;}}
+
+.card-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:flex-end;
+  padding:12px;
+
+  background:linear-gradient(
+    to top,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0)
+  );
+
+  opacity:0;
+  transition:opacity .3s ease;
+}
+
+.card-title{
+  color:white;
+  font-weight:600;
+  font-size:14px;
+}
+
+.card:hover{
+  transform:scale(1.05);
+}
+
+.card:hover .card-overlay{
+  opacity:1;
+}
 
 .zone-card{
+  position:relative;
   height:200px;
   border-radius:20px;
-  background-image:url("/assets/mountain2.png");
   background-size:cover;
   background-position:center;
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .3s ease;
+}
+
+.zone-card:hover{
+  transform:scale(1.05);
+}
+
+.card-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:flex-end;
+  padding:12px;
+  background:linear-gradient(
+    to top,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0)
+  );
+  opacity:0;
+  transition:opacity .3s ease;
+}
+
+.card:hover .card-overlay,
+.zone-card:hover .card-overlay{
+  opacity:1;
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/PlaceModal.css";
+import "../styles/placeModal.css";
 
 const PlaceModal = ({ place, onClose }) => {
   if (!place) return null;
