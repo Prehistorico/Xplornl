@@ -38,183 +38,117 @@ return (
 
 <div className="home">
 
-{/* HERO SECTION */}
-
-<section
-className="hero"
-style={{ backgroundImage: `url(${heroImage})` }}
->
-
-<div className="hero-content">
-
-<h1>NOMBRE DEL LUGAR</h1>
-
-<button className="explore-btn">Explorar </button>
-
-</div>
-
-</section>
-
-
-{/* LUGARES POPULARES */}
+  <section className="hero" style={{ backgroundImage: `url(${heroImage})` }}>
+    <div className="hero-content">
+      <h1>NOMBRE DEL LUGAR</h1>
+      <button className="explore-btn">Explorar </button>
+    </div>
+  </section>
 
 <section className="section">
-<h2>Lugares Populares</h2>
+  <h2>Lugares Populares</h2>
 
-<Swiper
-modules={[Navigation]}
-navigation
-spaceBetween={20}
-breakpoints={{
-  0: {slidesPerView: 3,},
-  768: { slidesPerView: 4,},
-  1024: {slidesPerView: 5,}
-}}
->
+  <Swiper
+    modules={[Navigation]}
+    navigation
+    spaceBetween={20}
+    breakpoints={{
+      0: {slidesPerView: 3,},
+      768: { slidesPerView: 4,},
+      1024: {slidesPerView: 5,}
+  }}>
 
 {cards.map((card,index)=>(
-<SwiperSlide key={index}>
-<div className="card"style={{ backgroundImage: `url(${cardImage})` }}>
-  <img
-    src={cardImage}
-    className="place-card"
-    onClick={() => setSelectedPlace(placeExample)}
-  />
+  <SwiperSlide key={index}>
+  <div className="card"style={{ backgroundImage: `url(${cardImage})` }}>
+    <img src={cardImage} className="place-card" onClick={() => setSelectedPlace(placeExample)} />
+
 </div></SwiperSlide>))}</Swiper></section>
 
 
-{/* RECOMENDACIONES */}
-
 <section className="section">
+  <h2>Recomendaciones</h2>
+  <Swiper
+    modules={[Navigation]}
+    navigation
+    spaceBetween={20}
+    breakpoints={{
+      0: {slidesPerView: 3,},
+      768: { slidesPerView: 4,},
+      1024: {slidesPerView: 5,}
+  }}>
 
-<h2>Recomendaciones</h2>
+  {cards.map((card,index)=>(
+  <SwiperSlide key={index}>
+    <div className="card" style={{ backgroundImage: `url(${cardImage})` }}></div>
+    </SwiperSlide>
+    ))}
 
-<Swiper
-modules={[Navigation]}
-navigation
-spaceBetween={20}
-breakpoints={{
-  0: {slidesPerView: 3,},
-  768: { slidesPerView: 4,},
-  1024: {slidesPerView: 5,}
-}}
->
-
-{cards.map((card,index)=>(
-<SwiperSlide key={index}>
-
-<div
-className="card"
-style={{ backgroundImage: `url(${cardImage})` }}
-></div>
-
-</SwiperSlide>
-))}
-
-</Swiper>
-
+  </Swiper>
 </section>
 
 
-{/* ZONAS DE MONTERREY */}
+<section className="section">
+  <h2>Zonas de Monterrey</h2>
+
+  <Swiper
+    modules={[Navigation]}
+    navigation
+    spaceBetween={20}
+    breakpoints={{
+      0: {slidesPerView: 3,},
+      768: { slidesPerView: 4,},
+      1024: {slidesPerView: 5,}
+  }}>
+    {cards.map((card,index)=>(
+    <SwiperSlide key={index}>
+      <div key={index} className="zone-card" style={{ backgroundImage: `url(${zoneImage})` }}></div>
+    </SwiperSlide>
+    ))}
+  </Swiper>
+</section>
 
 <section className="section">
+  <h2>Areas Naturales</h2>
+  <Swiper
+    modules={[Navigation]}
+    navigation
+    spaceBetween={20}
+    breakpoints={{
+      0: {slidesPerView: 3,},
+      768: { slidesPerView: 4,},
+      1024: {slidesPerView: 5,}
+    }}>
+    {cards.map((card,index)=>(
+  <SwiperSlide key={index}>
+    <div className="card" style={{ backgroundImage: `url(${cardImage})` }}></div>
+  </SwiperSlide>
+  ))}
+  </Swiper>
+</section>
 
-<h2>Zonas de Monterrey</h2>
-
-<Swiper
-modules={[Navigation]}
-navigation
-spaceBetween={20}
-breakpoints={{
-  0: {slidesPerView: 3,},
-  768: { slidesPerView: 4,},
-  1024: {slidesPerView: 5,}
-}}>
-
-{cards.map((card,index)=>(
-<SwiperSlide key={index}>
-
-<div
-key={index}
-className="zone-card"
-style={{ backgroundImage: `url(${zoneImage})` }}></div>
-</SwiperSlide>
-))}
-</Swiper>
+<section className="section">
+  <h2>Parques</h2>
+  <Swiper
+    modules={[Navigation]}
+    navigation
+    spaceBetween={20}
+    breakpoints={{
+      0: {slidesPerView: 3,},
+      768: { slidesPerView: 4,},
+      1024: {slidesPerView: 5,}
+  }}>
+  {cards.map((card,index)=>(
+    <SwiperSlide key={index}>
+      <div className="card" style={{ backgroundImage: `url(${cardImage})` }}></div>
+    </SwiperSlide>
+    ))}
+  </Swiper>
 </section>
 
 
-{/* AREAS NATURALES */}
+<PlaceModal place={selectedPlace} onClose={() => setSelectedPlace(null)}/>
+<ProfileModal open={profileOpen} onClose={()=>setProfileOpen(false)}/></div>
 
-<section className="section">
-
-<h2>Areas Naturales</h2>
-
-<Swiper
-modules={[Navigation]}
-navigation
-spaceBetween={20}
-breakpoints={{
-  0: {slidesPerView: 3,},
-  768: { slidesPerView: 4,},
-  1024: {slidesPerView: 5,}
-}}>
-
-{cards.map((card,index)=>(
-<SwiperSlide key={index}>
-
-<div
-className="card"
-style={{ backgroundImage: `url(${cardImage})` }}></div>
-
-</SwiperSlide>
-))}
-
-</Swiper>
-
-</section>
-
-
-{/* PARQUES */}
-
-<section className="section">
-
-<h2>Parques</h2>
-
-<Swiper
-modules={[Navigation]}
-navigation
-spaceBetween={20}
-breakpoints={{
-  0: {slidesPerView: 3,},
-  768: { slidesPerView: 4,},
-  1024: {slidesPerView: 5,}
-}}
->
-
-{cards.map((card,index)=>(
-<SwiperSlide key={index}>
-
-<div
-className="card"
-style={{ backgroundImage: `url(${cardImage})` }}
-></div>
-
-</SwiperSlide>
-))}
-
-</Swiper>
-</section>
-
-<PlaceModal
-  place={selectedPlace}
-  onClose={() => setSelectedPlace(null)}/>
-
-<ProfileModal
-open={profileOpen}
-onClose={()=>setProfileOpen(false)}/>
-
-</div>
 )}
 
