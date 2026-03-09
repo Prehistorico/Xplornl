@@ -1,0 +1,44 @@
+@font-face {
+    font-family: "Milker";
+    src: url(../assets/fonts/Milker.otf)format(truetype);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Montserrat;
+}
+
+.navbar{
+  height: 70px;
+  padding: 0 40px;
+  background-color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.logo-icon{
+  height:28px;
+}
+
+.logo-text{
+  color:#ff7a00;
+  font-size:24px;
+  font-weight:700;
+}
+
+.user-icon{
+  height:28px;
+  cursor:pointer;
+}

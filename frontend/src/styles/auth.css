@@ -1,0 +1,39 @@
+.auth-page{
+  height:100vh;
+  background-size:cover;
+  background-position:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.auth-box{
+  background:#1a0c03;
+  padding:60px;
+  border-radius:25px;
+  width:400px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.auth-box h1{
+  color:#ff7a00;
+  text-align:center;
+}
+
+.auth-box input{
+  padding:15px;
+  border-radius:12px;
+  border:none;
+  background:#e7c1a1;
+}
+
+.auth-box p{
+  color:white;
+  text-align:center;
+}
+
+.auth-box a{
+  color:#ff7a00;
+}
