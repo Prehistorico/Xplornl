@@ -1,17 +1,44 @@
-import { Link } from "react-router-dom"
-import "../styles/register.css"
+import { useState } from "react";
+import RegisterData from "../components/RegisterData";
+import RegisterPswd from "../components/RegisterPswd";
 
-export default function Register(){
-return(
-<div className="auth-page">
-    <div className="auth-box">
-        <h1>SIGN-IN</h1>
+export default function Register() {
+  const [step, setStep] = useState(1);
 
-        <input type="text" placeholder="USERNAME"/>
-        <input type="password" placeholder="PASSWORD"/>
-        <input type="password" placeholder="CONFIRM PASSWORD"/>
+  const [form, setForm] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-        <p>¿Ya tienes una cuenta? <Link to="/login">Inicia Sesión</Link></p>
-    </div>
-</div>
-)}
+  const [errors, setErrors] = useState({});
+
+  const nextStep = () => setStep(2);
+  const prevStep = () => setStep(1);
+
+  return (
+    <>
+      {step === 1 && (
+        <RegisterData
+          form={form}
+          setForm={setForm}
+          errors={errors}
+          setErrors={setErrors}
+          nextStep={nextStep}
+        />
+      )}
+
+      {step === 2 && (
+        <RegisterPswd
+          form={form}
+          setForm={setForm}
+          errors={errors}
+          setErrors={setErrors}
+          prevStep={prevStep}
+        />
+      )}
+    </>
+  );
+}

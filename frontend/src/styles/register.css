@@ -1,4 +1,4 @@
-.auth-page{
+.register-page{
   min-height:100vh;
   background:
     linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
@@ -12,34 +12,137 @@
   align-items:center;
 }
 
-.auth-box{
+.register-box{
   background:#190A00;
   padding:60px;
+  margin-right: 5rem;
   border-radius:25px;
-  width:400px;
+  width:500px;
+  height: 650px;
   display:flex;
   flex-direction:column;
   gap:20px;
   box-shadow:0 10px 30px rgba(0,0,0,0.2);
+  justify-content: center;
 }
 
-.auth-box h1{
-  color:#ff7a00;
+@media (max-width: 768px){
+  .register-page{justify-content: center;}
+  .register-box{margin-right: 0px;}
+}
+
+.register-box h1{
+  color:#FF6D0F;
   text-align:center;
+  margin-bottom: 2rem;
+  font-size:xxx-large;
 }
 
-.auth-box input{
-  padding:15px;
-  border-radius:12px;
-  border:none;
-  background:#e7c1a1;
+.input-wrapper {
+  position: relative;
+  width: 100%;
 }
 
-.auth-box p{
+.input-wrapper input {
+  width: 100%;
+  padding: 18px 15px 8px;
+  border-radius: 12px;
+  background: #F1F1F1;
+}
+
+.input-wrapper label {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: gray;
+  font-size: 15px;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+.input-wrapper label.active {
+  top: 10px;
+  font-size: 10px;
+  color: #FF6D0F;
+}
+
+.char-count {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  font-size: 11px;
+  color: gray;
+}
+
+.register-btn:disabled {
+  background: #FF6D0F;
+  cursor:default;
+  opacity: 0.5;
+}
+
+.input-wrapper input:focus + label {
+  top: 10px;
+  font-size: 11px;
+  color: #FF6D0F;
+}
+
+.register-input{
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  width: 100%;
+}
+
+.register-input input{
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid #F1F1F1;
+  width: 100%;
+  font-size: 15px;
+}
+
+.input-error {
+  border: 2px solid #FF6D0F !important;
+}
+
+.error {
+  color: #FF6D0F;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+ .register-date{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+}
+
+.register-options{
+  justify-content: center;
+  display: flex;
+  gap: 20px;
+}
+
+.register-btn{
+  margin-top: 2rem;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: #FF6D0F;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+}
+
+.register-text{
   color:white;
   text-align:center;
 }
 
-.auth-box a{
+.register-box a{
   color:#ff7a00;
 }
