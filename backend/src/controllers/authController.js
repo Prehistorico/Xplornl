@@ -8,23 +8,42 @@ exports.register = async (req, res) => {
   try {
     const { username, name, birthdate, email, password, confirmPassword } = req.body;
 
-    if (!username || !name || !birthdate || !email || !password || !confirmPassword) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    const missingFields = [];
+
+    if (!username) missingFields.push('username');
+    if (!name) missingFields.push('name');
+    if (!birthdate) missingFields.push('birthdate');
+    if (!email) missingFields.push('email');
+    if (!password) missingFields.push('password');
+    if (!confirmPassword) missingFields.push('confirmPassword');
+
+    if (missingFields.length > 0) {
+    return res.status(400).json({
+        message: 'Faltan campos obligatorios',
+        missingFields
+    });
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        message: 'La contraseña debe tener mínimo 8 caracteres, mayúscula, minúscula, número y símbolo'
-      });
-    }
+    const passwordErrors = [];
+
+    if (password.length < 8) {passwordErrors.push('Debe tener al menos 8 caracteres');}
+    if (!/[a-z]/.test(password)) {passwordErrors.push('Debe contener al menos una letra minúscula');}
+    if (!/[A-Z]/.test(password)) {passwordErrors.push('Debe contener al menos una letra mayúscula');}
+    if (!/\d/.test(password)) {passwordErrors.push('Debe contener al menos un número');}
+    if (!/[^A-Za-z0-9]/.test(password)) {passwordErrors.push('Debe contener al menos un carácter especial');}
+
+    if (passwordErrors.length > 0) {
+    return res.status(400).json({
+        message: 'La contraseña no cumple con los requisitos',
+        errors: passwordErrors
+    });}
 
     if (password !== confirmPassword) {
       return res.status(400).json({
         message: 'Las contraseñas no coinciden'
-      });
-    }
+      });}
 
     const existingUser = await User.findOne({ email });
 
@@ -57,7 +76,7 @@ exports.register = async (req, res) => {
         <a href="${verifyURL}">${verifyURL}</a>`
     );
     
-    console.log("✅ Correo enviado");
+    console.log("----------------------CORREO ENVIADO----------------------");
 
     res.status(201).json({
         message: 'Usuario registrado. Revisa tu correo para verificar tu cuenta'
@@ -84,17 +103,17 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ email }).select('+password');
 
         if(!user){
-            return res.status(400).json({ message: 'Credenciales inválidas' });
+            return res.status(400).json({ message: 'Usuario inválido.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if(!isMatch){
-            return res.status(400).json({ message: 'Credenciales inválidas' });
+            return res.status(400).json({ message: 'Contraseña inválida' });
         }
 
-        const token = jwt.sign(
-            { id: user._id },
+       const token = jwt.sign(
+            { id: user._id, role: user.role },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -140,4 +159,4 @@ exports.verifyEmail = async (req, res) => {
     }
 };
 
-console.log("✅ Correo enviado");
+    console.log("----------------------CORREO ENVIADO----------------------");

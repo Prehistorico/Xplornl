@@ -17,10 +17,10 @@ module.exports = async (to, subject, html) => {
             html
         });
 
-        console.log("✅ Email enviado desde nodemailer");
+        console.log("------------Email enviado desde nodemailer");
 
     } catch (error) {
-        console.error("❌ Error enviando email:", error);
+        console.error("------------Error enviando email:", error);
         throw error;
     }
 };
