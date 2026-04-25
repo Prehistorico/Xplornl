@@ -2,9 +2,11 @@ import "../styles/navbar.css"
 import { Link } from "react-router-dom"
 
 import { useState } from "react"
-import ProfileModal from "./ProfileModal"
+import ProfileModal from "../components/ProfileModal";
 import logo from "../assets/icons/xplory_logo.png"
 import userIcon from "../assets/icons/user_icon.png"
+import communIcon from "../assets/icons/comunidad.png"
+import homeIcon from "../assets/icons/home.png"
 
 export default function Navbar() {
 const [profileOpen, setProfileOpen] = useState(false)
@@ -15,13 +17,29 @@ return (
     <div className="navbar-left">
         <img src={logo} className="logo-icon" onClick={() => setProfileOpen(true)}/>
         <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)}/>
-        <Link to="/home"><h1 className="logo-text">XPLORNL</h1></Link>
+         <a href="/login" className="logo-text">XPLORNL</a>
     </div>
 
     <div className="navbar-right">
-        <Link to="/login">
-            <img src={userIcon} className="user-icon" />
-        </Link>
+        <li>
+            <a href="/home" className="navbar-icon">
+                <img src={homeIcon}/>
+                <span>Inicio</span>
+            </a>
+        </li>
+        <li>
+            <a href="/community" className="navbar-icon">
+                <img src={communIcon}/>
+                <span>Comunidad</span>
+            </a>
+        </li>
+        <li>
+            <a href="/login" className="navbar-icon">
+                <img src={userIcon}/>
+                <span>Mi Perfil</span>
+            </a>
+        </li>
+
     </div>
 </nav>
 )}
