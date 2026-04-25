@@ -20,13 +20,13 @@
 .navbar-left{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:15px;
   text-decoration: none;
   color: inherit;
 }
 
 .logo-icon{
-  height:28px;
+  height:30px;
 }
 
 .logo-text{
@@ -41,7 +41,37 @@
   color:inherit;
 }
 
-.user-icon{
-  height:28px;
-  cursor:pointer;
+.navbar-right{
+  list-style: none;
+  display: flex;
+  gap: 30px;
 }
+
+.navbar-right a{
+  text-decoration: none;
+  color: #ff7a00;
+  font-weight: 300;
+  font-size: 15px;
+  font-family: Milker;
+}
+
+.navbar-right a:hover{
+  border-bottom: 2px solid #ff7a00;
+  font-weight: 600;
+}
+
+.navbar-right span{
+  margin-top: 5px;
+}
+
+.navbar-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.navbar-icon img{
+  height: 30px;
+  cursor: pointer;
+}
+

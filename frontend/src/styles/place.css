@@ -1,0 +1,98 @@
+.place-container {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+}
+
+.place-left {
+  flex: 2;
+}
+
+.place-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.place-title h1 {
+  font-size: 48px;
+  margin: 0;
+}
+
+.place-category {
+  color: #ff6d0f;
+  font-size: 20px;
+  margin-top: 5px;
+}
+
+.place-rating {
+  background: #ff6d0f;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+.place-desc {
+  margin: 20px 0;
+  color: #555;
+  line-height: 1.6;
+}
+
+.deats-title {
+  margin-top: 30px;
+  font-size: 22px;
+}
+
+.deats-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.deats-item {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.icon {
+  width: 45px;
+  height: 45px;
+  background: #ffe5d4;
+  color: #ff6d0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 20px;
+}
+
+.deats-name {
+  font-weight: bold;
+}
+
+.place-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-card {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+}
+
+.card-title {
+  color: gray;
+  font-size: 14px;
+}
+
+.open {
+  color: #ff6d0f;
+  font-weight: bold;
+}

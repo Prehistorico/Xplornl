@@ -13,16 +13,17 @@
 
 .comment-modal {
   background: white;
-  width: 600px;
+  width: 800px;
   max-height: 90vh;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 20px;
+  margin-top: 100px;
 }
 
-.modal-header {
+.comment-header {
   position: sticky;
   top: 0;
   background: #fff;
