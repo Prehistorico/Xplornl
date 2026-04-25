@@ -1,6 +1,6 @@
 import { useState } from "react";
-import RegisterData from "../components/RegisterData";
-import RegisterPswd from "../components/RegisterPswd";
+import RegisterData from "../components/register/RegisterData";
+import RegisterPswd from "../components/register/RegisterPswd";
 
 export default function Register() {
   const [step, setStep] = useState(1);

@@ -1,11 +1,11 @@
 import "../styles/community.css";
 import { useState } from "react";
-import NewPost from "../components/CreatePost";
-import Post from "../components/Post";
-import CommentModal from "../components/CommentModal";
+import NewPost from "../components/posts/CreatePost";
+import Post from "../components/posts/Post";
+import CommentModal from "../components/posts/CommentModal";
 
 export default function Community() {
-
+  
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -52,7 +52,6 @@ export default function Community() {
 
       </div>
 
-      {/* ✅ MODAL */}
       {selectedPost && (
         <CommentModal
           post={selectedPost}

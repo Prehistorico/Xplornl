@@ -1,9 +1,6 @@
 import { Link } from "react-router-dom"
-import "../styles/register.css"
+import "../../styles/register.css";
 import { useState } from "react";
-
-import eyeOpen from "../assets/icons/eye-open.png";
-import eyeClose from "../assets/icons/eye-close.png";
 
 export default function RegisterPswd({ form, setForm, errors, setErrors, prevStep }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -67,9 +64,9 @@ export default function RegisterPswd({ form, setForm, errors, setErrors, prevSte
                           onClick={() => setShowPassword(!showPassword)}
                         >
                         {showPassword ? (
-                            <img src={eyeOpen} alt="Mostrar contraseña" />
+                            <img src="eye-open.png" alt="Mostrar contraseña" />
                         ) : (
-                            <img src={eyeClose} alt="Ocultar contraseña" />
+                            <img src="eye-close.png" alt="Ocultar contraseña" />
                         )}
                         </span>
                     </div>
@@ -95,9 +92,9 @@ export default function RegisterPswd({ form, setForm, errors, setErrors, prevSte
                         onClick={() => setShowConfirm(!showConfirm)}
                     >
                         {showPassword ? (
-                            <img src={eyeOpen} alt="Mostrar contraseña" />
+                            <img src="eye-open.png" alt="Mostrar contraseña" />
                         ) : (
-                            <img src={eyeClose} alt="Ocultar contraseña" />
+                            <img src="eye-close.png" alt="Ocultar contraseña" />
                         )}
                     </span>
                     </div>
