@@ -1,10 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 
 import Navbar from "./components/Navbar"
-import Home from "./pages/Home"
+import Home from "./pages/casa"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Community from "./pages/Community"
+import Place from "./pages/Place"
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/place" element={<Place />} />
       </Routes>
 
     </Router>
@@ -23,3 +25,4 @@ function App() {
 }
 
 export default App
+
