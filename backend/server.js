@@ -1,32 +1,25 @@
-import express from "express";
-import dotenv from "dotenv";
-import { connectDB } from "./config/db.js";
+require('dotenv').config();
+const app = require('./src/app');
+const connectDB = require('./src/config/db');
 
-dotenv.config();
+connectDB();
 
-const app = express();
+const PORT = process.env.PORT || 5000;
 
-app.use(express.json()); //middleware allowing us to accept JSON data in the req.body
+app.listen(PORT, async () => {
+    console.log(`Servidor corriendo en puerto ${PORT}`);
 
-app.post("/api/users", async (req, res) => {
-    const user = req.body; //user will send this data
-
-    if(!user.username || !user.password || !user.insignia || !user.image){
-        return res.status(400).json({success:false, message: "Please provide all fields"});
-    }
-
-    const newUser = new User(user)
+    const sendEmail = require('./src/utils/sendEmail');
 
     try {
-        await newUser.save();
-        res.status(201).json({success: true, data: newUser});
+        await sendEmail(
+            "TU_CORREO_REAL@gmail.com",
+            "TEST",
+            "<h1>Funciona</h1>"
+        );
+        console.log("✅ TEST EMAIL enviado");
     } catch (error) {
-        console.error("Error in create user:", error.message);
-        res.status(500).json({success: false, message: "Server Error"});   
+        console.error("❌ TEST EMAIL error:", error);
     }
 });
 
-app.listen(5000, () =>{
-    connectDB();
-    console.log("Server started at http://localhost:5000");
-});
