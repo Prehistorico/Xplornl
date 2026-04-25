@@ -12,10 +12,12 @@ Backend (contiene modelos y validaciónes de la base de datos junto a otras func
 -src
   -config (conexion con mongodb)
   -controllers (validaciónes)
-  -middleware ()
+  -middleware (funciónes entre peticiónes y endpoints)
   -models (colecciones de mongodb)
   -routes (endpoints)
   -utils (utilidades)
+-server.js (inicialización del puerto y conexion con mongodb)
+-app.js (declaración del uso de la app y conexion de rutas)
   
 Frontend (código del lado del cliente)
 -src
