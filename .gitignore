@@ -9,4 +9,5 @@ backend/logs/
 
 # Entornos
 backend/.env
+*.env
 
