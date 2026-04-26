@@ -1,9 +1,9 @@
 const Category = require('../models/Category');
 
 const { isNonEmptyString } = require('../utils/validators');
-const AppError = require('../utils/AppError');
+const appError = require('../utils/appError');
 
-exports.createCategory = async (req, res) => {
+exports.createCategory = async (req, res, next) => {
   try {
     const { name } = req.body;
 
@@ -30,7 +30,7 @@ exports.createCategory = async (req, res) => {
    next(error);
   }
 };
-exports.getCategories = async (req, res) => {
+exports.getCategories = async (req, res, next) => {
   try {
     const categories = await Category.find();
 
@@ -40,7 +40,7 @@ exports.getCategories = async (req, res) => {
     next(error);
   }
 };
-exports.getCategoryById = async (req, res) => {
+exports.getCategoryById = async (req, res, next) => {
   try {
     const category = await Category.findById(req.params.id);
 
@@ -54,7 +54,7 @@ exports.getCategoryById = async (req, res) => {
     next(error);
   }
 };
-exports.updateCategory = async (req, res) => {
+exports.updateCategory = async (req, res, next) => {
   try {
     const { name } = req.body;
 
@@ -78,7 +78,7 @@ exports.updateCategory = async (req, res) => {
     next(error);
   }
 };
-exports.deleteCategory = async (req, res) => {
+exports.deleteCategory = async (req, res, next) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
 

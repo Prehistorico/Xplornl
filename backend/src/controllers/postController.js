@@ -4,7 +4,7 @@ const Place = require('../models/Place');
 const Category = require('../models/Category');
 
 const { isNonEmptyString, isValidObjectId } = require('../utils/validators');
-const AppError = require('../utils/AppError');
+const appError = require('../utils/appError');
 
 exports.createPost = async (req, res, next) => {
   try {

@@ -1,8 +1,8 @@
 const User = require('../models/User');
 
-const AppError = require('../utils/AppError');
+const appError = require('../utils/appError');
 
-exports.getUsers = async (req, res) => {
+exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find().select('-password');
     res.json(users);
@@ -11,7 +11,7 @@ exports.getUsers = async (req, res) => {
     next(error);
   }
 };
-exports.getUserById = async (req, res) => {
+exports.getUserById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -27,7 +27,7 @@ exports.getUserById = async (req, res) => {
     next(error);
   }
 };
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -50,7 +50,7 @@ exports.updateUser = async (req, res) => {
     next(error);
   }
 };
-exports.deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 

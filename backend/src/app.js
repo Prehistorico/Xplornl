@@ -17,6 +17,14 @@ app.use('/api/posts', require('./routes/postRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    message: err.message || 'Error interno del servidor'
+  });
+});
+
+
 app.get('/', (req, res) => {
     res.send('API funcionando');
 });

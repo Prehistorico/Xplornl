@@ -2,9 +2,9 @@ const Place = require('../models/Place');
 const Category = require('../models/Category');
 
 const { isNonEmptyString, isValidObjectId } = require('../utils/validators');
-const AppError = require('../utils/AppError');
+const appError = require('../utils/appError');
 
-exports.createPlace = async (req, res) => {
+exports.createPlace = async (req, res, next) => {
   try {
     const { name, category, location } = req.body;
 
@@ -47,7 +47,7 @@ exports.createPlace = async (req, res) => {
      next(error);
   }
 };
-exports.getPlaces = async (req, res) => {
+exports.getPlaces = async (req, res, next) => {
   try {
     const places = await Place.find()
       .populate('category', 'name');
@@ -58,7 +58,7 @@ exports.getPlaces = async (req, res) => {
        next(error);
   }
 };
-exports.getPlaceById = async (req, res) => {
+exports.getPlaceById = async (req, res, next) => {
   try {
     const place = await Place.findById(req.params.id)
       .populate('category', 'name');
@@ -73,7 +73,7 @@ exports.getPlaceById = async (req, res) => {
     next(error);
   }
 };
-exports.updatePlace = async (req, res) => {
+exports.updatePlace = async (req, res, next) => {
   try {
     const updates = req.body;
 
@@ -103,7 +103,7 @@ exports.updatePlace = async (req, res) => {
      next(error);
   }
 };
-exports.deletePlace = async (req, res) => {
+exports.deletePlace = async (req, res, next) => {
   try {
     const place = await Place.findByIdAndDelete(req.params.id);
 

@@ -1,8 +1,8 @@
 const Comment = require('../models/Comment');
 
-const AppError = require('../utils/AppError');
+const appError = require('../utils/appError');
 
-exports.createComment = async (req, res) => {
+exports.createComment = async (req, res, next) => {
   try {
     const { post, description } = req.body;
 
@@ -30,7 +30,7 @@ exports.createComment = async (req, res) => {
     next(error);
   }
 };
-exports.getComments = async (req, res) => {
+exports.getComments = async (req, res, next) => {
   try {
     const comments = await Comment.find()
       .populate('user', 'username')
@@ -43,7 +43,7 @@ exports.getComments = async (req, res) => {
     next(error);
   }
 };
-exports.getCommentsByPost = async (req, res) => {
+exports.getCommentsByPost = async (req, res, next) => {
   try {
     const comments = await Comment.find({ post: req.params.postId })
       .populate('user', 'username')
@@ -55,7 +55,7 @@ exports.getCommentsByPost = async (req, res) => {
      next(error);
   }
 };
-exports.getCommentById = async (req, res) => {
+exports.getCommentById = async (req, res, next) => {
   try {
     const comment = await Comment.findById(req.params.id)
       .populate('user', 'username')
@@ -71,7 +71,7 @@ exports.getCommentById = async (req, res) => {
     next(error);
   }
 };
-exports.updateComment = async (req, res) => {
+exports.updateComment = async (req, res, next) => {
   try {
     const comment = await Comment.findById(req.params.id);
 
@@ -102,7 +102,7 @@ exports.updateComment = async (req, res) => {
     res.status(500).json({ message: 'Error al actualizar comentario' });
   }
 };
-exports.deleteComment = async (req, res) => {
+exports.deleteComment = async (req, res, next) => {
   try {
     const comment = await Comment.findById(req.params.id);
 
