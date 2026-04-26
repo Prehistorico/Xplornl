@@ -1,10 +1,46 @@
+
 const express = require('express');
 const router = express.Router();
 const { register, login, verifyEmail } = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 const User = require('../models/User');
 
+/**
+ * @swagger
+ * /api/register:
+ *   post:
+ *     summary: Registrar usuario
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Usuario registrado
+ */
 router.post('/register', register);
+
+/**
+ * @swagger
+ * /api/login:
+ *   post:
+ *     summary: Login de usuario
+ *     tags: [Auth]
+ */
 router.post('/login', login);
 
 router.get('/profile', authMiddleware, (req, res) => {

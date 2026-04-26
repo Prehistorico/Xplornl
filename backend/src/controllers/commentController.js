@@ -1,5 +1,7 @@
 const Comment = require('../models/Comment');
 
+const AppError = require('../utils/AppError');
+
 exports.createComment = async (req, res) => {
   try {
     const { post, description } = req.body;
@@ -25,11 +27,9 @@ exports.createComment = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al crear comentario' });
+    next(error);
   }
 };
-
-
 exports.getComments = async (req, res) => {
   try {
     const comments = await Comment.find()
@@ -40,10 +40,9 @@ exports.getComments = async (req, res) => {
     res.json(comments);
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener comentarios' });
+    next(error);
   }
 };
-
 exports.getCommentsByPost = async (req, res) => {
   try {
     const comments = await Comment.find({ post: req.params.postId })
@@ -53,10 +52,9 @@ exports.getCommentsByPost = async (req, res) => {
     res.json(comments);
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener comentarios del post' });
+     next(error);
   }
 };
-
 exports.getCommentById = async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id)
@@ -70,10 +68,9 @@ exports.getCommentById = async (req, res) => {
     res.json(comment);
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener comentario' });
+    next(error);
   }
 };
-
 exports.updateComment = async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);
@@ -82,7 +79,6 @@ exports.updateComment = async (req, res) => {
       return res.status(404).json({ message: 'Comentario no encontrado' });
     }
 
-    // 🔒 solo dueño o admin
     if (comment.user.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'No autorizado' });
     }
@@ -91,7 +87,6 @@ exports.updateComment = async (req, res) => {
 
     if (description) comment.description = description;
 
-    // solo admin puede aprobar/rechazar
     if (status && req.user.role === 'admin') {
       comment.status = status;
     }
@@ -107,7 +102,6 @@ exports.updateComment = async (req, res) => {
     res.status(500).json({ message: 'Error al actualizar comentario' });
   }
 };
-
 exports.deleteComment = async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);
@@ -116,7 +110,6 @@ exports.deleteComment = async (req, res) => {
       return res.status(404).json({ message: 'Comentario no encontrado' });
     }
 
-    // 🔒 solo dueño o admin
     if (comment.user.toString() !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'No autorizado' });
     }
@@ -126,6 +119,6 @@ exports.deleteComment = async (req, res) => {
     res.json({ message: 'Comentario eliminado' });
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar comentario' });
+    next(error);
   }
 };

@@ -1,6 +1,8 @@
 require('dotenv').config();
 const app = require('./src/app');
 const connectDB = require('./src/config/db');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./src/config/swagger');
 
 connectDB();
 
@@ -22,4 +24,6 @@ app.listen(PORT, async () => {
         console.error("❌ TEST EMAIL error:", error);
     }
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

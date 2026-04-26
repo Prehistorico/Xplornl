@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
 
+const AppError = require('../utils/AppError');
+
 exports.register = async (req, res) => {
   try {
     const { username, name, birthdate, email, password, confirmPassword } = req.body;
@@ -84,14 +86,9 @@ exports.register = async (req, res) => {
     
 
   } catch (error) {
-  console.error('REGISTER ERROR:', error);
-  return res.status(500).json({
-    message: error.message,
-    name: error.name
-  });
+    next(error);
 }
 };
-
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -129,13 +126,10 @@ exports.login = async (req, res) => {
         });
 
     } 
-
         catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error del servidor' });
+        next(error);
     }
 };
-
 exports.verifyEmail = async (req, res) => {
     try {
         const { token } = req.params;
@@ -154,8 +148,7 @@ exports.verifyEmail = async (req, res) => {
         res.json({ message: 'Cuenta verificada correctamente' });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error del servidor' });
+      next(error);
     }
 };
 

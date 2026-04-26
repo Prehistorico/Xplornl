@@ -2,11 +2,15 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
+const authMiddleware = require('./middleware/authMiddleware');
 app.use('/api', require('./routes/authRoutes'));
+app.use(require('./middleware/errorHandler'));
+
+app.use('/api', authMiddleware);
+
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/places', require('./routes/placeRoutes'));
 app.use('/api/posts', require('./routes/postRoutes'));

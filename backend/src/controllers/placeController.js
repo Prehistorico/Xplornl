@@ -1,7 +1,39 @@
 const Place = require('../models/Place');
+const Category = require('../models/Category');
+
+const { isNonEmptyString, isValidObjectId } = require('../utils/validators');
+const AppError = require('../utils/AppError');
 
 exports.createPlace = async (req, res) => {
   try {
+    const { name, category, location } = req.body;
+
+    if (!isNonEmptyString(name, 3)) {
+      return res.status(400).json({ message: 'Nombre inválido' });
+    }
+
+    if (category) {
+      if (!isValidObjectId(category)) {
+        return res.status(400).json({ message: 'Category ID inválido' });
+      }
+
+      const categoryExists = await Category.findById(category);
+      if (!categoryExists) {
+        return res.status(404).json({ message: 'Categoría no existe' });
+      }
+    }
+
+    if (location?.coordinates) {
+      const { lat, lng } = location.coordinates;
+
+      if (
+        typeof lat !== 'number' ||
+        typeof lng !== 'number'
+      ) {
+        return res.status(400).json({ message: 'Coordenadas inválidas' });
+      }
+    }
+
     const place = new Place(req.body);
 
     await place.save();
@@ -12,11 +44,9 @@ exports.createPlace = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al crear lugar' });
+     next(error);
   }
 };
-
 exports.getPlaces = async (req, res) => {
   try {
     const places = await Place.find()
@@ -25,10 +55,9 @@ exports.getPlaces = async (req, res) => {
     res.json(places);
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener lugares' });
+       next(error);
   }
 };
-
 exports.getPlaceById = async (req, res) => {
   try {
     const place = await Place.findById(req.params.id)
@@ -41,15 +70,26 @@ exports.getPlaceById = async (req, res) => {
     res.json(place);
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al obtener lugar' });
+    next(error);
   }
 };
-
 exports.updatePlace = async (req, res) => {
   try {
+    const updates = req.body;
+
+    if (updates.name && !isNonEmptyString(updates.name, 3)) {
+      return res.status(400).json({ message: 'Nombre inválido' });
+    }
+
+    if (updates.category) {
+      if (!isValidObjectId(updates.category)) {
+        return res.status(400).json({ message: 'Category inválido' });
+      }
+    }
+
     const place = await Place.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updates,
       { new: true }
     );
 
@@ -57,16 +97,12 @@ exports.updatePlace = async (req, res) => {
       return res.status(404).json({ message: 'Lugar no encontrado' });
     }
 
-    res.json({
-      message: 'Lugar actualizado',
-      place
-    });
+    res.json({ message: 'Lugar actualizado', place });
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar lugar' });
+     next(error);
   }
 };
-
 exports.deletePlace = async (req, res) => {
   try {
     const place = await Place.findByIdAndDelete(req.params.id);
@@ -78,6 +114,6 @@ exports.deletePlace = async (req, res) => {
     res.json({ message: 'Lugar eliminado' });
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar lugar' });
+     next(error);
   }
 };

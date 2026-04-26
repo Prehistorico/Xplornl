@@ -1,34 +1,62 @@
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
+const Place = require('../models/Place');
+const Category = require('../models/Category');
 
-exports.createPost = async (req, res) => {
+const { isNonEmptyString, isValidObjectId } = require('../utils/validators');
+const AppError = require('../utils/AppError');
+
+exports.createPost = async (req, res, next) => {
   try {
     const { title, description, tags } = req.body;
 
-    const post = new Post({
-      title,
+    if (!isNonEmptyString(title, 3)) {
+      return next(new AppError('Título inválido', 400));
+    }
+
+    if (description && !isNonEmptyString(description, 5)) {
+      return next(new AppError('Descripción inválida', 400));
+    }
+
+    if (tags?.place) {
+      if (!isValidObjectId(tags.place)) {
+        return next(new AppError('Place inválido', 400));
+      }
+
+      const placeExists = await Place.findById(tags.place);
+      if (!placeExists) {
+        return next(new AppError('Place no existe', 404));
+      }
+    }
+
+    if (tags?.category) {
+      if (!isValidObjectId(tags.category)) {
+        return next(new AppError('Category inválida', 400));
+      }
+
+      const categoryExists = await Category.findById(tags.category);
+      if (!categoryExists) {
+        return next(new AppError('Category no existe', 404));
+      }
+    }
+
+    const post = await Post.create({
+      title: title.trim(),
       description,
       tags,
       user: req.user.id
     });
 
-    await post.save();
-
     res.status(201).json({
-      message: 'Post creado correctamente',
+      message: 'Post creado',
       post
     });
 
   } catch (error) {
-        console.error("CREATE POST ERROR:", error);
-        res.status(500).json({
-        message: error.message,
-        name: error.name
-    });
+    next(error);
   }
 };
-
-exports.getPosts = async (req, res) => {
+exports.getPosts = async (req, res, next) => {
   try {
     const posts = await Post.find()
       .populate('user', 'username name')
@@ -52,25 +80,21 @@ exports.getPosts = async (req, res) => {
     res.json(postsWithComments);
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener posts' });
+    next(error);
   }
 };
-
-exports.getPostById = async (req, res) => {
+exports.getPostById = async (req, res, next) => {
   try {
-    const postId = req.params.id;
-
-    const post = await Post.findById(postId)
+    const post = await Post.findById(req.params.id)
       .populate('user', 'username name')
       .populate('tags.place', 'name description')
       .populate('tags.category', 'name');
 
     if (!post) {
-      return res.status(404).json({ message: 'Post no encontrado' });
+      return next(new AppError('Post no encontrado', 404));
     }
 
-    const comments = await Comment.find({ post: postId })
+    const comments = await Comment.find({ post: req.params.id })
       .populate('user', 'username')
       .sort({ createdAt: -1 });
 
@@ -80,31 +104,35 @@ exports.getPostById = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al obtener el post' });
+    next(error);
   }
 };
-
-exports.updatePost = async (req, res) => {
+exports.updatePost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ message: 'Post no encontrado' });
+      return next(new AppError('Post no encontrado', 404));
     }
 
-    // 🔒 solo dueño o admin
     if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'No autorizado' });
+      return next(new AppError('No autorizado', 403));
     }
 
     const { title, description, tags, status } = req.body;
+
+    if (title && !isNonEmptyString(title, 3)) {
+      return next(new AppError('Título inválido', 400));
+    }
+
+    if (tags?.place && !isValidObjectId(tags.place)) {
+      return next(new AppError('Place inválido', 400));
+    }
 
     if (title) post.title = title;
     if (description) post.description = description;
     if (tags) post.tags = tags;
 
-    // solo admin puede cambiar status
     if (status && req.user.role === 'admin') {
       post.status = status;
     }
@@ -117,22 +145,19 @@ exports.updatePost = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al actualizar post' });
+    next(error);
   }
 };
-
-
-exports.deletePost = async (req, res) => {
+exports.deletePost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ message: 'Post no encontrado' });
+      return next(new AppError('Post no encontrado', 404));
     }
 
     if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'No autorizado' });
+      return next(new AppError('No autorizado', 403));
     }
 
     await post.deleteOne();
@@ -140,8 +165,7 @@ exports.deletePost = async (req, res) => {
     res.json({ message: 'Post eliminado' });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error al eliminar post' });
+    next(error);
   }
 };
 

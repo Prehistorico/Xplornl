@@ -1,15 +1,16 @@
 const User = require('../models/User');
 
+const AppError = require('../utils/AppError');
+
 exports.getUsers = async (req, res) => {
   try {
     const users = await User.find().select('-password');
     res.json(users);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error al obtener usuarios' });
+    next(error);
   }
 };
-
 exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -23,10 +24,9 @@ exports.getUserById = async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error' });
+    next(error);
   }
 };
-
 exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -47,11 +47,9 @@ exports.updateUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error' });
+    next(error);
   }
 };
-
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -65,7 +63,6 @@ exports.deleteUser = async (req, res) => {
     res.json({ message: 'Usuario eliminado' });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error' });
+    next(error);
   }
 };

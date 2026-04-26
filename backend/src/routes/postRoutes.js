@@ -9,12 +9,11 @@ const {
   deletePost
 } = require('../controllers/postController');
 
-const authMiddleware = require('../middleware/authMiddleware');
-
-router.post('/', authMiddleware, createPost);
 router.get('/', getPosts);
 router.get('/:id', getPostById);
-router.put('/:id', authMiddleware, updatePost);
-router.delete('/:id', authMiddleware, deletePost);
+
+router.post('/', createPost);
+router.put('/:id', updatePost);
+router.delete('/:id', deletePost);
 
 module.exports = router;
