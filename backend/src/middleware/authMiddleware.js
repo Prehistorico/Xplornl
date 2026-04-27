@@ -1,3 +1,5 @@
+const appError = require('../utils/appError');
+
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
@@ -5,13 +7,13 @@ const authMiddleware = (req, res, next) => {
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {
-            return res.status(401).json({ message: 'No autorizado' });
+            return next(new appError('No autorizado', 401));
         }
 
         const token = authHeader.split(' ')[1];
 
         if (!token) {
-            return res.status(401).json({ message: 'Token inválido' });
+            return next(new appError('Token inválido', 401));
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -21,7 +23,7 @@ const authMiddleware = (req, res, next) => {
         next(); 
 
     } catch (error) {
-        return res.status(401).json({ message: 'Token inválido o expirado' });
+        return next(new appError('Token inválido o expirado', 401));
     }
 };
 
