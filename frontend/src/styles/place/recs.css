@@ -1,0 +1,61 @@
+.recs-section {
+  margin-top: 60px;
+  padding: 40px;
+}
+
+.recs-list {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.rec-card {
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  width: 280px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.rec-image img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+}
+
+.rec-content {
+  padding: 15px;
+}
+
+.rec-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.rec-zone {
+  color: gray;
+  font-size: 14px;
+}
+
+.rec-rating {
+  color: #ff6d0f;
+  font-weight: bold;
+  margin: 8px 0;
+}
+
+.rec-desc {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.rec-btn {
+  background: #ff6d0f;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}

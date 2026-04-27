@@ -96,3 +96,58 @@
   color: #ff6d0f;
   font-weight: bold;
 }
+
+@media (max-width: 1024px) {
+  .place-container {
+    flex-direction: column;
+    padding: 30px;
+    gap: 30px;
+  }
+
+  .place-title h1 {
+    font-size: 36px;
+  }
+
+  .place-category {
+    font-size: 18px;
+  }
+
+  .place-rating {
+    font-size: 16px;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .place-container {
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .place-title h1 {
+    font-size: 28px;
+  }
+
+  .place-category {
+    font-size: 16px;
+  }
+
+  .place-desc {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .deats-title {
+    font-size: 18px;
+  }
+
+  .icon {
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+
+  .info-card {
+    padding: 15px;
+  }
+}

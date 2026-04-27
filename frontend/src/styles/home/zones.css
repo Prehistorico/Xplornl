@@ -1,0 +1,136 @@
+.zones {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+}
+
+.zones-title {
+  font-size: 45px;
+  margin-bottom: 20px;
+}
+
+.zones-index {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 2rem;
+  background-color: #fff;
+  padding: 15px 40px;
+  border-radius: 20px;
+}
+
+.zone-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 2px solid transparent;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #ff6d0f;
+}
+
+.zone-btn.active {
+  border: 2px solid #ff6d0f;
+}
+
+.zone-number {
+  background-color: #FDE6BA; 
+  color: #ff660f;             
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.zone-name {
+  color: #ff6d0f; 
+  font-weight: bolder;
+  font-size: 18px;
+}
+
+.zones-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: center;
+  width: 100%;
+}
+
+.zones-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.zones-info {
+  background: #f9f9f9;
+  padding: 40px;
+  border-radius: 8px;
+}
+
+.zones-info h3 {
+  margin-bottom: 5px;
+  font-size: 25px;
+  color: #000;
+}
+
+.zones-info p {
+  margin-bottom: 20px;
+  line-height: 1.4;
+  color: #757575;
+}
+
+.zones-map {
+  width: 100%;
+  border-radius: 6px;
+}
+
+@media (max-width: 1024px) {
+}
+
+@media (max-width: 768px) {
+  .zones-title {
+    font-size: 30px;
+  }
+  .zones-index {
+    display: flex;
+    gap: 8px;
+    padding: 5px 10px;
+  }
+  .zone-number {            
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  .zone-name {
+    color: #ff6d0f; 
+    font-weight: bolder;
+    font-size: 14px;
+  }
+  .zone-btn {
+    padding: 8px 10px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #ff6d0f;
+  }
+  .zones-list {
+    flex-direction: column;
+    align-items: center;
+  }
+  .zone-card {
+    width: 80%;
+  }
+  .zones-info {
+    padding: 25px;
+  }
+  .zones-info h3 {
+    font-size: 20px;
+  }
+   .zones-info p {
+    font-size: 15px;
+  }
+}

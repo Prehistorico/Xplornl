@@ -1,0 +1,83 @@
+.categ-section {
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.categ-section h2 {
+  font-size: 28px;
+  margin-bottom: 40px;
+}
+
+.categ-list {
+  display: flex;
+  gap: 25px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.categ-card {
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  width: 260px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.categ-content {
+  padding: 25px;
+  text-align: left;
+}
+
+.categ-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.categ-desc {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.categ-btn {
+  background: #ff6d0f;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.categ-btn:hover {
+  background: #e65c00;
+}
+
+@media (max-width: 1024px) {
+  .categ-section {
+    padding: 30px 0px;
+  }
+  .categ-list {
+    gap: 15px;
+    flex-wrap:nowrap;
+  }
+  
+}
+
+@media (max-width: 768px) 
+{
+  .categ-section {
+    padding: 30px 0px;
+  }
+  .categ-section h2 {
+    font-size: 24px;
+  }
+  .categ-list {
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+
+}
