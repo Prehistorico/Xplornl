@@ -1,5 +1,5 @@
-import CategCard from "./CategCard";
-import "../../styles/home/categ.css";
+import CategCard from "../CategCard";
+import "./categ.css";
 
 export default function CategExplor() {
   const categories = [

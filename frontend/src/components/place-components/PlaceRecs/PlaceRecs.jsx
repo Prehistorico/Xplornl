@@ -1,5 +1,5 @@
-import Card from "../Card";
-import "../../styles/place/recs.css";
+import Card from "../../Card";
+import "./recs.css";
 
 export default function PlaceRecs() {
   const recs = [

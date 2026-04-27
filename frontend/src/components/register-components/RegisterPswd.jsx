@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import "../../styles/register.css";
+import "./register.css";
 import { useState } from "react";
 
 export default function RegisterPswd({ form, setForm, errors, setErrors, prevStep }) {

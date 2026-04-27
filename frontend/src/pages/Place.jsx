@@ -1,7 +1,7 @@
 import { useState } from "react";
-import PlaceInfo from "../components/place/PlaceInfo";
-import PlaceReviews from "../components/place/PlaceReview";
-import PlaceRecs from "../components/place/PlaceRecs";
+import PlaceInfo from "../components/place-components/PlaceInfo/PlaceInfo";
+import PlaceReviews from "../components/place-components/PlaceReview/PlaceReview";
+import PlaceRecs from "../components/place-components/PlaceRecs/PlaceRecs";
 
 export default function Place() {
   return (

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../styles/place/place.css"
+import "./place.css"
 
 export default function PlaceInfo() {
   return (

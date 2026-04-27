@@ -1,4 +1,4 @@
-import "../../styles/postModal.css"
+import "./postModal.css"
 import { useState } from "react";
 
 const CreatePostModal = ({ onClose, onAddPost }) => {

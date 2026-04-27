@@ -1,11 +1,11 @@
-import "../styles/navbar.css"
+import "./navbar.css"
 import { Link } from "react-router-dom"
 
 import { useState } from "react"
-import logo from "../assets/icons/xplory_logo.png"
-import userIcon from "../assets/icons/user_icon.png"
-import communIcon from "../assets/icons/comunidad.png"
-import homeIcon from "../assets/icons/home.png"
+import logo from "../../../assets/icons/xplory_logo.png"
+import userIcon from "../../../assets/icons/user_icon.png"
+import communIcon from "../../../assets/icons/comunidad.png"
+import homeIcon from "../../../assets/icons/home.png"
 
 export default function Navbar() {
 const [profileOpen, setProfileOpen] = useState(false)

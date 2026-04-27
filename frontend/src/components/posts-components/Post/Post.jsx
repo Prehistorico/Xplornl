@@ -1,4 +1,4 @@
-import yunho from "../../assets/images/yunho.png";
+import yunho from "../../../assets/images/yunho.png";
 
 const Post = ({ post, onOpenComments }) => {
   return (

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import "../../styles/commentModal.css";
-import Post from "./Post"; 
+import "./commentModal.css";
+import Post from "../Post/Post"; 
 
 export default function CommentModal({ post, onClose }) {
   const [comment, setComment] = useState("");

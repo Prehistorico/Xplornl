@@ -1,5 +1,5 @@
-import "../../styles/home/hero.css";
-import bcg from "../../assets/images/register.jpeg";
+import "./hero.css";
+import bcg from "../../../assets/images/register.jpeg";
 
 export default function Hero() {
   return (

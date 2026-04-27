@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../styles/home/zones.css";
+import "./zones.css";
 
 export default function Zones() {
   const zones = [
