@@ -12,15 +12,16 @@ exports.register = async (req, res, next) => {
 
     const existingUsername = await User.findOne({ username });
     if (existingUsername) {
-      return res.status(400).json({ message: 'El nombre de usuario ya está registrado' });
+       return next(new appError('El nombre de usuario ya está registrado', 400));
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'El correo ya está registrado' });
+      return next(new appError('El correo ya está registrado', 400));
     }
 
-    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const emailToken = crypto.randomBytes(32).toString('hex');
+    const emailTokenHash = crypto.createHash('sha256').update(emailToken).digest('hex');
 
     const newUser = new User({
       username,
@@ -28,10 +29,20 @@ exports.register = async (req, res, next) => {
       birthdate,
       email,
       password,
-      verificationToken
+      emailToken: emailTokenHash
     });
 
     await newUser.save();
+
+    const verifyURL = `http://localhost:5000/api/verify/${emailToken}`;
+
+    await sendEmail(
+      email,
+      'Verifica tu cuenta',
+      `<h1>Verificación</h1>
+      <p>Haz click:</p>
+      <a href="${verifyURL}">${verifyURL}</a>`
+    );
 
     res.status(201).json({
       message: 'Usuario registrado. Revisa tu correo para verificar tu cuenta'
@@ -46,25 +57,23 @@ exports.login = async (req, res, next) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+       return next(new appError('Todos los campos son obligatorios', 400));
     }
 
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-      return res.status(400).json({ message: 'Usuario inválido.' });
+      return next(new appError('Usuario inválido.', 400));
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: 'Contraseña inválida' });
+      return next(new appError('Contraseña inválida', 400));
     }
 
     if (!user.isVerified) {
-      return res.status(403).json({
-        message: 'Debes verificar tu correo antes de iniciar sesión'
-      });
+      return next(new appError('Debes verificar tu correo antes de iniciar sesión', 403));
     }
 
     const token = jwt.sign(
@@ -91,14 +100,19 @@ exports.verifyEmail = async (req, res, next) => {
   try {
     const { token } = req.params;
 
-    const user = await User.findOne({ verificationToken: token });
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    const user = await User.findOne({ emailToken: hashedToken });
 
     if (!user) {
-      return res.status(400).json({ message: 'Token inválido' });
+       return next(new appError('Token inválido', 400 ));
     }
 
     user.isVerified = true;
-    user.verificationToken = undefined;
+    user.emailToken = undefined;
 
     await user.save();
 

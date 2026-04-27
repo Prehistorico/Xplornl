@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    verificationToken: String
+    emailToken: String
 
     
 });

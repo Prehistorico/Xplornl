@@ -16,7 +16,7 @@ exports.getUserById = async (req, res, next) => {
     const { id } = req.params;
 
     if (req.user.role === 'cliente' && req.user.id !== id) {
-      return res.status(403).json({ message: 'Usaurio no autorizado' });
+      return next(new appError('Usaurio no autorizado', 403));
     }
 
     const user = await User.findById(id).select('-password');
@@ -32,7 +32,7 @@ exports.updateUser = async (req, res, next) => {
     const { id } = req.params;
 
     if (req.user.role === 'cliente' && req.user.id !== id) {
-      return res.status(403).json({ message: 'Usaurio no autorizado' });
+      return next(new appError('Usaurio no autorizado', 403));
     }
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -55,7 +55,7 @@ exports.deleteUser = async (req, res, next) => {
     const { id } = req.params;
 
     if (req.user.role === 'cliente' && req.user.id !== id) {
-      return res.status(403).json({ message: 'Usaurio no autorizado' });
+      return next(new appError('Usaurio no autorizado', 403));
     }
 
     await User.findByIdAndDelete(id);
