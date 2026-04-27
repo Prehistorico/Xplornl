@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 const { register, login, verifyEmail } = require('../controllers/authController');
 const authMiddleware = require('../middleware/authMiddleware');
+const validateRegister = require('../middleware/validateRegister');
+
 const User = require('../models/User');
 
 /**
@@ -32,7 +34,8 @@ const User = require('../models/User');
  *       201:
  *         description: Usuario registrado
  */
-router.post('/register', register);
+
+router.post('/register', validateRegister, register);
 
 /**
  * @swagger
