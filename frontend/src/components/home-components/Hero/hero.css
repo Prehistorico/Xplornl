@@ -1,9 +1,9 @@
 .hero {
   position: relative;
-  height: 80vh;
+  height: 82vh;
+  min-height: 500px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
   overflow: hidden;
 }
 
@@ -14,79 +14,75 @@
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 0;
 }
 
 .hero-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.05) 100%);
-  display: flex;
-  align-items: flex-end;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(25, 10, 0, 0.78) 0%,
+    rgba(25, 10, 0, 0.45) 45%,
+    rgba(25, 10, 0, 0.08) 100%
+  );
+  z-index: 1;
 }
 
 .hero-content {
-  margin: 0 0 80px 80px;
-  width: 55%;
-  color: white;
+  position: relative;
   z-index: 2;
+  padding: 0 72px 80px;
+  max-width: 660px;
 }
 
 .hero-content h1 {
-  font-size: 72px;
+  font-size: clamp(40px, 5.5vw, 72px);
   font-weight: 900;
   line-height: 1.05;
+  color: #ffffff;
   margin-bottom: 28px;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
 }
 
 .hero-btn {
-  background: #ff6d0f;
-  color: white;
+  background: var(--principal-color);
+  color: #fff;
   border: none;
-  padding: 14px 32px;
-  border-radius: 30px;
-  font-size: 17px;
+  padding: 14px 34px;
+  border-radius: var(--radius-pill);
+  font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
-  box-shadow: 0 4px 16px rgba(255,109,15,0.4);
+  transition: background 0.25s, transform 0.15s, box-shadow 0.25s;
+  box-shadow: 0 4px 20px var(--principal-shadow);
 }
 
 .hero-btn:hover {
-  background: #e65c00;
+  background: var(--principal-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255,109,15,0.5);
+  box-shadow: 0 8px 24px var(--principal-shadow);
 }
 
 @media (max-width: 1024px) {
   .hero-content {
-    margin: 0 0 60px 60px;
-    width: 70%;
-  }
-  .hero-content h1 {
-    font-size: 54px;
+    padding: 0 48px 64px;
+    max-width: 100%;
   }
   .hero {
-    height: 65vh;
+    height: 68vh;
   }
 }
 
 @media (max-width: 768px) {
-  .hero-content {
-    margin: 0 0 40px 32px;
-    width: 85%;
-  }
-  .hero-content h1 {
-    font-size: 38px;
-  }
   .hero {
-    height: 55vh;
+    height: 56vh;
+  }
+  .hero-content {
+    padding: 0 28px 48px;
   }
   .hero-btn {
-    font-size: 15px;
-    padding: 12px 24px;
+    font-size: 14px;
+    padding: 12px 26px;
   }
 }

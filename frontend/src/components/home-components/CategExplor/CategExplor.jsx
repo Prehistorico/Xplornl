@@ -1,14 +1,17 @@
 import { useState, useRef } from "react";
 import CategCard from "../CategCard";
 import "./categ.css";
+import mountain from "../../../assets/images/mountain.png";
+import mountain2 from "../../../assets/images/mountain2.png";
+import watchtower from "../../../assets/images/watchtower.png";
 
 export default function CategExplor() {
   const categories = [
-    { name: "Cafeterías", image: "../../../assets/icons/comunidad.png", desc: "Descubre las mejores cafeterías locales de Monterrey." },
-    { name: "Restaurantes", image: "../../../assets/icons/comunidad.png", desc: "Explora la gastronomía y sabores de Monterrey." },
-    { name: "Parques", image: "../../../assets/icons/comunidad.png", desc: "Encuentra espacios verdes para relajarte y disfrutar." },
-    { name: "Plazas", image: "../../../assets/icons/comunidad.png", desc: "Visita las plazas más concurridas de la ciudad." },
-    { name: "Museos", image: "../../../assets/icons/comunidad.png", desc: "Conoce la historia y cultura de Monterrey." },
+    { name: "Cafeterías", image: mountain, desc: "Descubre las mejores cafeterías locales de Monterrey." },
+    { name: "Restaurantes", image: mountain2, desc: "Explora la gastronomía y los sabores únicos de la ciudad." },
+    { name: "Parques", image: watchtower, desc: "Encuentra espacios verdes para relajarte y disfrutar al aire libre." },
+    { name: "Plazas", image: mountain, desc: "Visita las plazas más concurridas y emblemáticas." },
+    { name: "Museos", image: mountain2, desc: "Conoce la historia y la cultura de Monterrey." },
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -28,7 +31,7 @@ export default function CategExplor() {
 
       <div className="categ-carousel-wrapper">
         <button
-          className="categ-arrow categ-arrow--left"
+          className="categ-arrow"
           onClick={() => scroll(-1)}
           disabled={activeIndex === 0}
         >
@@ -42,7 +45,7 @@ export default function CategExplor() {
         </div>
 
         <button
-          className="categ-arrow categ-arrow--right"
+          className="categ-arrow"
           onClick={() => scroll(1)}
           disabled={activeIndex === categories.length - 1}
         >
