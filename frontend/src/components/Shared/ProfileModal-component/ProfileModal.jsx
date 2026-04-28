@@ -1,4 +1,4 @@
-import "../styles/profileModal.css"
+import "./profileModal.css"
 
 export default function ProfileModal({ open, onClose }) {
 

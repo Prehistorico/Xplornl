@@ -1,5 +1,5 @@
 import { useState } from "react";
-import CreatePostModal from "./CreatePostModal";
+import CreatePostModal from "../CreatePostModal/CreatePostModal";
 import yunho from "../../assets/images/yunho.png";
 
 const NewPost = ({ onAddPost }) => {
