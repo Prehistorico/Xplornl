@@ -6,10 +6,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const authMiddleware = require('./middleware/authMiddleware');
+
 app.use('/api', require('./routes/authRoutes'));
 
-
+const authMiddleware = require('./middleware/authMiddleware');
 app.use('/api', authMiddleware);
 
 app.use('/api/users', require('./routes/userRoutes'));
