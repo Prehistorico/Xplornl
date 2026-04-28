@@ -2,135 +2,179 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 50px;
+  padding-top: 60px;
+  padding-bottom: 60px;
 }
 
 .zones-title {
-  font-size: 45px;
-  margin-bottom: 20px;
+  font-size: 42px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 28px;
+  letter-spacing: -0.5px;
 }
 
 .zones-index {
   display: flex;
-  gap: 20px;
-  margin-bottom: 2rem;
+  gap: 12px;
+  margin-bottom: 40px;
   background-color: #fff;
-  padding: 15px 40px;
-  border-radius: 20px;
+  padding: 12px 32px;
+  border-radius: 50px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
 }
 
 .zone-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: none;
   border: 2px solid transparent;
-  padding: 10px 20px;
-  border-radius: 25px;
+  padding: 8px 18px;
+  border-radius: 30px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   color: #ff6d0f;
+}
+
+.zone-btn:hover {
+  border-color: #ff6d0f;
+  background: #fff5ee;
 }
 
 .zone-btn.active {
   border: 2px solid #ff6d0f;
+  background: #fff5ee;
 }
 
 .zone-number {
-  background-color: #FDE6BA; 
-  color: #ff660f;             
-  padding: 5px 10px;
+  background-color: #ff6d0f;
+  color: #fff;
+  padding: 4px 10px;
   border-radius: 12px;
-  font-weight: bold;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 13px;
 }
 
 .zone-name {
-  color: #ff6d0f; 
-  font-weight: bolder;
-  font-size: 18px;
+  color: #ff6d0f;
+  font-weight: 700;
+  font-size: 17px;
 }
 
 .zones-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  align-items: center;
+  gap: 28px;
+  align-items: start;
   width: 100%;
+}
+
+.zones-image {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.13);
 }
 
 .zones-image img {
   width: 100%;
-  height: auto;
+  height: 380px;
   object-fit: cover;
-  border-radius: 8px;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.zones-image img:hover {
+  transform: scale(1.03);
 }
 
 .zones-info {
-  background: #f9f9f9;
-  padding: 40px;
-  border-radius: 8px;
+  background: #fff;
+  padding: 36px;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .zones-info h3 {
-  margin-bottom: 5px;
-  font-size: 25px;
-  color: #000;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
 }
 
 .zones-info p {
-  margin-bottom: 20px;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.7;
   color: #757575;
+  margin: 0;
+}
+
+.zones-map-wrapper {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e8e8e8;
 }
 
 .zones-map {
   width: 100%;
-  border-radius: 6px;
+  height: 180px;
+  object-fit: cover;
+  display: block;
 }
 
 @media (max-width: 1024px) {
+  .zones-title {
+    font-size: 32px;
+  }
+  .zones-image img {
+    height: 300px;
+  }
+  .zones-info {
+    padding: 24px;
+  }
 }
 
 @media (max-width: 768px) {
+  .zones {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
   .zones-title {
-    font-size: 30px;
+    font-size: 26px;
+    text-align: center;
   }
   .zones-index {
-    display: flex;
-    gap: 8px;
-    padding: 5px 10px;
+    gap: 6px;
+    padding: 8px 16px;
   }
-  .zone-number {            
-    padding: 5px 10px;
-    font-size: 12px;
+  .zone-number {
+    padding: 4px 8px;
+    font-size: 11px;
   }
   .zone-name {
-    color: #ff6d0f; 
-    font-weight: bolder;
-    font-size: 14px;
+    font-size: 13px;
   }
   .zone-btn {
-    padding: 8px 10px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: #ff6d0f;
+    padding: 6px 10px;
+    gap: 6px;
   }
-  .zones-list {
-    flex-direction: column;
-    align-items: center;
+  .zones-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
-  .zone-card {
-    width: 80%;
+  .zones-image img {
+    height: 220px;
   }
   .zones-info {
-    padding: 25px;
+    padding: 20px;
   }
   .zones-info h3 {
-    font-size: 20px;
+    font-size: 19px;
   }
-   .zones-info p {
-    font-size: 15px;
+  .zones-info p {
+    font-size: 13px;
   }
 }

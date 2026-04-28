@@ -6,6 +6,7 @@ import Login from "./pages/Login"
 import Register from "./pages/Register"
 import Community from "./pages/Community"
 import Place from "./pages/Place"
+import './styles/colorDesign.css';
 
 function App() {
   return (

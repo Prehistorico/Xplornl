@@ -1,15 +1,16 @@
-.home-page{
-    background-color: #f1f1f1;
-    padding: 0px 50px;
+.home-page {
+  background-color: #f1f1f1;
+  padding: 0 60px;
 }
 
 @media (max-width: 1024px) {
-    .home-page{
-        padding: 0px 30px;
-    }
+  .home-page {
+    padding: 0 30px;
+  }
 }
 
-@media (max-width: 768px) 
-{
-
+@media (max-width: 768px) {
+  .home-page {
+    padding: 0 18px;
+  }
 }

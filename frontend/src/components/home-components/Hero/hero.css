@@ -22,45 +22,52 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5); 
+  background: linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.05) 100%);
   display: flex;
-  align-items: end;
+  align-items: flex-end;
 }
 
 .hero-content {
-  margin: 0px 0px 80px 80px;
-  width: 65%;
+  margin: 0 0 80px 80px;
+  width: 55%;
   color: white;
   z-index: 2;
 }
 
 .hero-content h1 {
-  font-size: 80px;
-  margin-bottom: 20px;
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-bottom: 28px;
+  letter-spacing: -1px;
 }
 
 .hero-btn {
   background: #ff6d0f;
   color: white;
   border: none;
-  padding: 14px 30px;
+  padding: 14px 32px;
   border-radius: 30px;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 16px rgba(255,109,15,0.4);
 }
 
 .hero-btn:hover {
   background: #e65c00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255,109,15,0.5);
 }
 
 @media (max-width: 1024px) {
   .hero-content {
-    margin: 0px 0px 60px 60px;
-    width: 100%;
+    margin: 0 0 60px 60px;
+    width: 70%;
   }
   .hero-content h1 {
-    font-size: 60px;
+    font-size: 54px;
   }
   .hero {
     height: 65vh;
@@ -69,13 +76,17 @@
 
 @media (max-width: 768px) {
   .hero-content {
-    margin: 0px 0px 40px 40px;
-    width: 100%;
+    margin: 0 0 40px 32px;
+    width: 85%;
   }
   .hero-content h1 {
-    font-size: 40px;
+    font-size: 38px;
   }
   .hero {
-    height: 50vh;
+    height: 55vh;
+  }
+  .hero-btn {
+    font-size: 15px;
+    padding: 12px 24px;
   }
 }
