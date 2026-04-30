@@ -1,8 +1,8 @@
 import "../styles/community.css";
 import { useState } from "react";
-import NewPost from "../components/posts/CreatePost";
-import Post from "../components/posts/Post";
-import CommentModal from "../components/posts/CommentModal";
+import NewPost from "../components/posts-components/CreatePostModal/CreatePostModal";
+import Post from "../components/posts-components/Post/Post";
+import CommentModal from "../components/posts-components/CommentModal/CommentModal";
 
 export default function Community() {
   
