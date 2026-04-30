@@ -1,5 +1,5 @@
 import Review from "./Review";
-import "../../styles/reviews.css"
+import "./reviews.css"
 
 export default function PlaceReviews() {
 
