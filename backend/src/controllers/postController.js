@@ -4,7 +4,7 @@ const Place = require('../models/Place');
 const Category = require('../models/Category');
 
 const { isNonEmptyString, isValidObjectId } = require('../utils/validators');
-const appError = require('../utils/appError');
+const AppError = require('../utils/appError');
 
 exports.createPost = async (req, res, next) => {
   try {
@@ -58,14 +58,49 @@ exports.createPost = async (req, res, next) => {
 };
 exports.getPosts = async (req, res, next) => {
   try {
-    const posts = await Post.find()
+    const {
+      search,
+      category,
+      place,
+      status
+    } = req.query;
+
+    const filter = {};
+
+    if (search) {
+      filter.$text = {
+          $search: search
+      };
+    }
+    if (category && isValidObjectId(category)) {
+      filter['tags.category'] = category;
+    }
+    if (place && isValidObjectId(place)) {
+      filter['tags.place'] = place;
+    }
+    if (status) {
+      filter.status = status;
+    }
+    Post.find(filter)
+
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(
+      Math.max(parseInt(req.query.limit) || 10, 1),
+      50);
+    const skip = (page - 1) * limit;
+    const totalPosts = await Post.countDocuments();
+
+    const posts = await Post.find(filter)
       .populate('user', 'username name')
       .populate('tags.place', 'name')
       .populate('tags.category', 'name')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     const postsWithComments = await Promise.all(
       posts.map(async (post) => {
+
         const comments = await Comment.find({ post: post._id })
           .populate('user', 'username')
           .sort({ createdAt: -1 });
@@ -77,7 +112,12 @@ exports.getPosts = async (req, res, next) => {
       })
     );
 
-    res.json(postsWithComments);
+    res.json({
+      currentPage: page,
+      totalPages: Math.ceil(totalPosts / limit),
+      totalPosts,
+      posts: postsWithComments
+    });
 
   } catch (error) {
     next(error);
@@ -85,6 +125,10 @@ exports.getPosts = async (req, res, next) => {
 };
 exports.getPostById = async (req, res, next) => {
   try {
+    if (!isValidObjectId(req.params.id)) {
+         return next(new AppError('ID inválido', 400));
+      }
+
     const post = await Post.findById(req.params.id)
       .populate('user', 'username name')
       .populate('tags.place', 'name description')
@@ -109,11 +153,11 @@ exports.getPostById = async (req, res, next) => {
 };
 exports.updatePost = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
-
-    if (!post) {
-      return next(new AppError('Post no encontrado', 404));
+    if (!isValidObjectId(req.params.id)) {
+      return next(new AppError('ID inválido', 400));
     }
+
+    const post = req.post;
 
     if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
       return next(new AppError('No autorizado', 403));
@@ -129,11 +173,21 @@ exports.updatePost = async (req, res, next) => {
       return next(new AppError('Place inválido', 400));
     }
 
-    if (title) post.title = title;
-    if (description) post.description = description;
-    if (tags) post.tags = tags;
+    if (title !== undefined) post.title = title;
+    if (description !== undefined) post.description = description;  
+    if (tags !== undefined) post.tags = tags;
 
-    if (status && req.user.role === 'admin') {
+    const allowedStatus = ['pending', 'approved', 'rejected'];
+
+    if (status !== undefined) {
+      if (!allowedStatus.includes(status)) {
+          return next(new AppError('Status inválido', 400));
+      }
+
+      if (req.user.role !== 'admin') {
+          return next(new AppError('No autorizado para cambiar status', 403));
+      }
+
       post.status = status;
     }
 
@@ -150,16 +204,17 @@ exports.updatePost = async (req, res, next) => {
 };
 exports.deletePost = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
-
-    if (!post) {
-      return next(new AppError('Post no encontrado', 404));
+    if (!isValidObjectId(req.params.id)) {
+      return next(new AppError('ID inválido', 400));
     }
+
+    const post = req.post;
 
     if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
       return next(new AppError('No autorizado', 403));
     }
 
+    await Comment.deleteMany({ post: post._id });
     await post.deleteOne();
 
     res.json({ message: 'Post eliminado' });
@@ -168,4 +223,45 @@ exports.deletePost = async (req, res, next) => {
     next(error);
   }
 };
+exports.toggleLikePost = async (req, res, next) => {
+   try {
 
+      const post = await Post.findById(req.params.id);
+
+      if (!post) {
+         return next(new AppError('Post no encontrado', 404));
+      }
+
+      const userId = req.user.id;
+
+      const alreadyLiked = post.likes.users.some(
+         user => user.toString() === userId
+      );
+
+      if (alreadyLiked) {
+
+         post.likes.users = post.likes.users.filter(
+            user => user.toString() !== userId
+         );
+
+      } else {
+
+         post.likes.users.push(userId);
+
+      }
+
+      await post.save();
+
+      res.json({
+         message: alreadyLiked
+            ? 'Like removido'
+            : 'Like agregado',
+
+         totalLikes: post.likes.users.length,
+         likes: post.likes.users
+      });
+
+   } catch(error) {
+      next(error);
+   }
+};

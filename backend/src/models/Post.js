@@ -1,8 +1,19 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: String,
+  title: { 
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 120
+  },
+
+  description: {
+    type: String,
+    trim: true,
+    maxlength: 2000
+  },
 
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -23,7 +34,6 @@ const postSchema = new mongoose.Schema({
   },
 
   likes: {
-    count: { type: Number, default: 0 },
     users: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -39,5 +49,13 @@ const postSchema = new mongoose.Schema({
   }
 
 }, { timestamps: true });
+
+postSchema.index({ user: 1 });
+postSchema.index({ status: 1 });
+postSchema.index({ createdAt: -1 });
+postSchema.index({
+  title: 'text',
+  description: 'text'
+});
 
 module.exports = mongoose.model('Post', postSchema);

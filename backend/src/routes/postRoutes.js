@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
+const postOwnership = require('../middleware/postOwnership');
+const {toggleLikePost} = require('../controllers/postController');
+
 
 const {
   createPost,
@@ -12,8 +16,20 @@ const {
 router.get('/', getPosts);
 router.get('/:id', getPostById);
 
-router.post('/', createPost);
-router.put('/:id', updatePost);
-router.delete('/:id', deletePost);
+router.post('/', authMiddleware, createPost);
+router.put('/:id',
+   authMiddleware,
+   postOwnership,
+   updatePost
+);
+router.delete('/:id',
+   authMiddleware,
+   cpostOwnership,
+   deletePost
+);
+router.patch('/:id/like',
+   authMiddleware,
+   toggleLikePost
+);
 
 module.exports = router;
