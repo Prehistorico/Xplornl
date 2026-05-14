@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
-const postOwnership = require('../middleware/postOwnership');
+const postOwnership = require('../permissions/postOwnership');
 const {toggleLikePost} = require('../controllers/postController');
 
 

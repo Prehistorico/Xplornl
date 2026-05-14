@@ -1,6 +1,6 @@
 const Category = require('../models/Category');
 
-const { isNonEmptyString } = require('../utils/validators');
+const { isNonEmptyString } = require('../validators/valdateInputs');
 const appError = require('../utils/appError');
 
 exports.createCategory = async (req, res, next) => {

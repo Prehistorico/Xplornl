@@ -1,6 +1,6 @@
 const Post = require('../models/Post');
 const AppError = require('../utils/appError');
-const { isValidObjectId } = require('../utils/validators');
+const { isValidObjectId } = require('../validators/valdateInputs');
 
 const checkPostOwnership = async (req, res, next) => {
    try {

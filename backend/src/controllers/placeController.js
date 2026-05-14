@@ -1,7 +1,7 @@
 const Place = require('../models/Place');
 const Category = require('../models/Category');
 
-const { isNonEmptyString, isValidObjectId } = require('../utils/validators');
+const { isNonEmptyString, isValidObjectId } = require('../validators/validateInputs');
 const appError = require('../utils/appError');
 
 exports.createPlace = async (req, res, next) => {
