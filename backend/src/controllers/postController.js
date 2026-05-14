@@ -9,37 +9,6 @@ const AppError = require('../utils/appError');
 exports.createPost = async (req, res, next) => {
   try {
     const { title, description, tags } = req.body;
-
-    if (!isNonEmptyString(title, 3)) {
-      return next(new AppError('Título inválido', 400));
-    }
-
-    if (description && !isNonEmptyString(description, 5)) {
-      return next(new AppError('Descripción inválida', 400));
-    }
-
-    if (tags?.place) {
-      if (!isValidObjectId(tags.place)) {
-        return next(new AppError('Place inválido', 400));
-      }
-
-      const placeExists = await Place.findById(tags.place);
-      if (!placeExists) {
-        return next(new AppError('Place no existe', 404));
-      }
-    }
-
-    if (tags?.category) {
-      if (!isValidObjectId(tags.category)) {
-        return next(new AppError('Category inválida', 400));
-      }
-
-      const categoryExists = await Category.findById(tags.category);
-      if (!categoryExists) {
-        return next(new AppError('Category no existe', 404));
-      }
-    }
-
     const post = await Post.create({
       title: title.trim(),
       description,
@@ -151,36 +120,29 @@ exports.getPostById = async (req, res, next) => {
 };
 exports.updatePost = async (req, res, next) => {
   try {
-    if (!isValidObjectId(req.params.id)) {
-      return next(new AppError('ID inválido', 400));
-    }
 
     const post = req.post;
-    const { title, description, tags, status } = req.body;
 
-    if (title && !isNonEmptyString(title, 3)) {
-      return next(new AppError('Título inválido', 400));
+    const {
+      title,
+      description,
+      tags,
+      status
+    } = req.body;
+
+    if (title !== undefined) {
+      post.title = title;
     }
 
-    if (tags?.place && !isValidObjectId(tags.place)) {
-      return next(new AppError('Place inválido', 400));
+    if (description !== undefined) {
+      post.description = description;
     }
 
-    if (title !== undefined) post.title = title;
-    if (description !== undefined) post.description = description;  
-    if (tags !== undefined) post.tags = tags;
-
-    const allowedStatus = ['pending', 'approved', 'rejected'];
+    if (tags !== undefined) {
+      post.tags = tags;
+    }
 
     if (status !== undefined) {
-      if (!allowedStatus.includes(status)) {
-          return next(new AppError('Status inválido', 400));
-      }
-
-      if (req.user.role !== 'admin') {
-          return next(new AppError('No autorizado para cambiar status', 403));
-      }
-
       post.status = status;
     }
 
@@ -217,7 +179,7 @@ exports.toggleLikePost = async (req, res, next) => {
       if (!isValidObjectId(req.params.id)) {
         return next(new AppError('ID inválido', 400));
       }
-      
+
       const post = await Post.findById(req.params.id);
 
       if (!post) {

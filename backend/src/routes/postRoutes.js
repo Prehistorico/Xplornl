@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const postOwnership = require('../permissions/postOwnership');
 const {toggleLikePost} = require('../controllers/postController');
-
+const {validateCreatePost, validateUpdatePost} = require('../validators/validatePost');
 
 const {
   createPost,
@@ -16,10 +16,17 @@ const {
 router.get('/', getPosts);
 router.get('/:id', getPostById);
 
-router.post('/', authMiddleware, createPost);
-router.put('/:id',
+router.post(
+   '/',
+   authMiddleware,
+   validateCreatePost,
+   createPost
+);
+router.put(
+   '/:id',
    authMiddleware,
    postOwnership,
+   validateUpdatePost,
    updatePost
 );
 router.delete('/:id',
