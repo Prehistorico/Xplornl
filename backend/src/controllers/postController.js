@@ -81,14 +81,12 @@ exports.getPosts = async (req, res, next) => {
     if (status) {
       filter.status = status;
     }
-    Post.find(filter)
-
     const page = Math.max(parseInt(req.query.page) || 1, 1);
     const limit = Math.min(
       Math.max(parseInt(req.query.limit) || 10, 1),
       50);
     const skip = (page - 1) * limit;
-    const totalPosts = await Post.countDocuments();
+    const totalPosts = await Post.countDocuments(filter);
 
     const posts = await Post.find(filter)
       .populate('user', 'username name')
@@ -158,11 +156,6 @@ exports.updatePost = async (req, res, next) => {
     }
 
     const post = req.post;
-
-    if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return next(new AppError('No autorizado', 403));
-    }
-
     const { title, description, tags, status } = req.body;
 
     if (title && !isNonEmptyString(title, 3)) {
@@ -210,10 +203,6 @@ exports.deletePost = async (req, res, next) => {
 
     const post = req.post;
 
-    if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return next(new AppError('No autorizado', 403));
-    }
-
     await Comment.deleteMany({ post: post._id });
     await post.deleteOne();
 
@@ -225,7 +214,10 @@ exports.deletePost = async (req, res, next) => {
 };
 exports.toggleLikePost = async (req, res, next) => {
    try {
-
+      if (!isValidObjectId(req.params.id)) {
+        return next(new AppError('ID inválido', 400));
+      }
+      
       const post = await Post.findById(req.params.id);
 
       if (!post) {
@@ -253,13 +245,13 @@ exports.toggleLikePost = async (req, res, next) => {
       await post.save();
 
       res.json({
-         message: alreadyLiked
-            ? 'Like removido'
-            : 'Like agregado',
+      message: alreadyLiked
+          ? 'Like removido'
+          : 'Like agregado',
 
-         totalLikes: post.likes.users.length,
-         likes: post.likes.users
-      });
+      totalLikes: post.likes.users.length,
+      liked: !alreadyLiked
+    });
 
    } catch(error) {
       next(error);

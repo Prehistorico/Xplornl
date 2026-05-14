@@ -24,7 +24,7 @@ router.put('/:id',
 );
 router.delete('/:id',
    authMiddleware,
-   cpostOwnership,
+   postOwnership,
    deletePost
 );
 router.patch('/:id/like',
