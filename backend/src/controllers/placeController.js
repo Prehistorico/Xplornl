@@ -1,6 +1,7 @@
 const Place = require('../models/Place');
 const Category = require('../models/Category');
 const pickPlaceFields = require('../utils/pickPlaceFields');
+const catchAsync = require('../utils/catchAsync');
 
 const { isNonEmptyString, isValidObjectId } = require('../validators/validateInputs');
 const appError = require('../utils/appError');
@@ -23,17 +24,12 @@ exports.createPlace = async (req, res, next) => {
     next(error);
   }
 };
-exports.getPlaces = async (req, res, next) => {
-  try {
+exports.getPlaces = catchAsync(async (req, res, next) => {
     const places = await Place.find()
       .populate('category', 'name');
 
     res.json(places);
-
-  } catch (error) {
-       next(error);
-  }
-};
+});
 exports.getPlaceById = async (req, res, next) => {
   try {
     const place = await Place.findById(req.params.id)

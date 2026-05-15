@@ -2,13 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
-const apiLimiter = require('./middleware/rateLimiter');
+const limiter = require('./middleware/rateLimiter');
+const errorHandler = require('./middleware/errorHandler');
+const helmet = require('helmet');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+app.use(helmet({crossOriginResourcePolicy: false}));
 
 app.use('/api', require('./routes/authRoutes'));
 
@@ -18,7 +20,7 @@ app.use('/api', authMiddleware);
 app.use(mongoSanitize());
 app.use(xss());
 
-app.use('/api', apiLimiter);
+app.use('/api', limiter);
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/places', require('./routes/placeRoutes'));
 app.use('/api/posts', require('./routes/postRoutes'));
@@ -29,5 +31,5 @@ app.get('/', (req, res) => {
     res.send('API funcionando');
 });
 
-app.use(require('./middleware/errorHandler'));
+app.use(errorHandler);
 module.exports = app;
