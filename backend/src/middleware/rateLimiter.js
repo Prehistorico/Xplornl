@@ -5,9 +5,10 @@ const limiter = rateLimit({
 
   max: 100,
 
-  message: {
-    message: 'Demasiadas solicitudes, intenta más tarde'
-  },
+   message: {
+   status: 'fail',
+   message: 'Demasiadas solicitudes, intenta más tarde'
+   },
 
   standardHeaders: true,
 

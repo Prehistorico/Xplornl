@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
-  title: { 
+
+  title: {
     type: String,
     required: true,
     trim: true,
@@ -21,26 +22,22 @@ const postSchema = new mongoose.Schema({
     required: true
   },
 
-  tags: {
-    place: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Place'
-    },
-
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category'
-    },
+  place: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Place'
   },
 
-  likes: {
-    users: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-      }
-    ]
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category'
   },
+
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  ],
 
   status: {
     type: String,
@@ -53,6 +50,7 @@ const postSchema = new mongoose.Schema({
 postSchema.index({ user: 1 });
 postSchema.index({ status: 1 });
 postSchema.index({ createdAt: -1 });
+
 postSchema.index({
   title: 'text',
   description: 'text'

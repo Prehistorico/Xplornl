@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
-const postOwnership = require('../permissions/postOwnership');
+const postOwnership = require('../permissions/postPermissions');
 const {toggleLikePost} = require('../controllers/postController');
 const {validateCreatePost, validateUpdatePost} = require('../validators/validatePost');
+const {validateObjectId} = require('../validators/validateObjectId');
 
 const {
   createPost,
@@ -14,7 +15,11 @@ const {
 } = require('../controllers/postController');
 
 router.get('/', getPosts);
-router.get('/:id', getPostById);
+router.get(
+   '/:id', 
+   validateObjectId,
+   getPostById
+);
 
 router.post(
    '/',

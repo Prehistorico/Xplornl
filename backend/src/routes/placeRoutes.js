@@ -3,8 +3,8 @@ const router = express.Router();
 
 const roleMiddleware = require('../middleware/roleMiddleware');
 const validatePlace = require('../validators/validatePlace');
-const sanitizePlace = require('../middleware/sanitizePlace');
-const validateObjectId = require('../middleware/validateObjectId');
+const sanitizePlace = require('../validators/sanitizePlace');
+const validateObjectId = require('../validators/validateObjectId');
 
 const {
   createPlace,

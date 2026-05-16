@@ -5,22 +5,20 @@ const xss = require('xss-clean');
 const limiter = require('./middleware/rateLimiter');
 const errorHandler = require('./middleware/errorHandler');
 const helmet = require('helmet');
+const authMiddleware = require('./middleware/authMiddleware');
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
 app.use(helmet({crossOriginResourcePolicy: false}));
-
-app.use('/api', require('./routes/authRoutes'));
-
-const authMiddleware = require('./middleware/authMiddleware');
-app.use('/api', authMiddleware);
-
+app.use(express.json());
 app.use(mongoSanitize());
 app.use(xss());
 
 app.use('/api', limiter);
+app.use('/api', require('./routes/authRoutes'));
+app.use('/api', authMiddleware);
+
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/places', require('./routes/placeRoutes'));
 app.use('/api/posts', require('./routes/postRoutes'));

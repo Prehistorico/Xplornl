@@ -16,10 +16,11 @@ const handleValidationErrorDB = (err) => {
   };
 };
 
-const handleDuplicateFieldsDB = () => ({
+const value = Object.values(err.keyValue).join(', ');
+return {
   statusCode: 400,
-  message: 'Valor duplicado'
-});
+  message: `Valor duplicado: ${value}`
+};
 
 const sendErrorDev = (err, res) => {
 
@@ -89,12 +90,10 @@ const errorHandler = (err, req, res, next) => {
   }
 
   if (process.env.NODE_ENV === 'development') {
-
-    sendErrorDev(err, res);
-
+    sendErrorDev(error, res);
   } else {
 
-    sendErrorProd(err, res);
+    sendErrorProd(error, res);
   }
 };
 
