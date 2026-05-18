@@ -1,5 +1,6 @@
 const Comment = require('../models/Comment');
 const Post = require('../models/Post');
+const containsBannedWords = require('../utils/containsBannedWords');
 
 const appError = require('../utils/appError');
 
@@ -11,6 +12,17 @@ exports.createComment = async (req, res, next) => {
 
     if (!postExists) {
       return next(new appError('Post no encontrado', 404));
+    }
+
+    const hasBannedWords = containsBannedWords(description);
+
+    if (hasBannedWords) {
+      return next(
+        new appError(
+          'El comentario contiene lenguaje prohibido',
+          400
+        )
+      );
     }
 
     const comment = await Comment.create({
@@ -48,18 +60,6 @@ exports.getComments = async (req, res, next) => {
 };
 exports.getCommentsByPost = async (req, res, next) => {
   try {
-    const comments = await Comment.find({ post: req.params.postId })
-      .populate('user', 'username')
-      .sort({ createdAt: -1 });
-
-    res.json(comments);
-
-  } catch (error) {
-     next(error);
-  }
-};
-exports.getCommentById = async (req, res, next) => {
-  try {
     let filter = {
       post: req.params.postId
     };
@@ -67,12 +67,36 @@ exports.getCommentById = async (req, res, next) => {
     if (req.user?.role !== 'admin') {
       filter.status = 'approved';
     }
+
+    const comments = await Comment.find(filter)
+      .populate('user', 'username')
+      .sort({ createdAt: -1 });
+
+    res.json(comments);
+
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getCommentById = async (req, res, next) => {
+  try {
     const comment = await Comment.findById(req.params.id)
       .populate('user', 'username')
       .populate('post', 'title');
 
     if (!comment) {
-      return res.status(404).json({ message: 'Comentario no encontrado' });
+      return next(
+        new appError('Comentario no encontrado', 404)
+      );
+    }
+
+    if (
+      comment.status !== 'approved' &&
+      req.user?.role !== 'admin'
+    ) {
+      return next(
+        new appError('Comentario no encontrado', 404)
+      );
     }
 
     res.json(comment);
@@ -81,31 +105,31 @@ exports.getCommentById = async (req, res, next) => {
     next(error);
   }
 };
-exports.updateComment = async (req, res, next) => {
+exports.getCommentById = async (req, res, next) => {
   try {
-    const comment = await Comment.findById(req.params.id);
+    const comment = await Comment.findById(req.params.id)
+      .populate('user', 'username')
+      .populate('post', 'title');
 
     if (!comment) {
-      return res.status(404).json({ message: 'Comentario no encontrado' });
+      return next(
+        new appError('Comentario no encontrado', 404)
+      );
     }
 
-    if (comment.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'No autorizado' });
+    if (
+      comment.status !== 'approved' &&
+      req.user?.role !== 'admin'
+    ) {
+      return next(
+        new appError('Comentario no encontrado', 404)
+      );
     }
 
-    const { description } = req.body;
-
-    if (description) comment.description = description;
-
-    await comment.save();
-
-    res.json({
-      message: 'Comentario actualizado',
-      comment
-    });
+    res.json(comment);
 
   } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar comentario' });
+    next(error);
   }
 };
 exports.deleteComment = async (req, res, next) => {
@@ -123,6 +147,89 @@ exports.deleteComment = async (req, res, next) => {
     await comment.deleteOne();
 
     res.json({ message: 'Comentario eliminado' });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.likeComment = async (req, res, next) => {
+  try {
+    const comment = await Comment.findById(req.params.id);
+
+    if (!comment) {
+      return next(
+        new appError('Comentario no encontrado', 404)
+      );
+    }
+
+    const userId = req.user.id;
+
+    const alreadyLiked = comment.likes.users.some(
+      user => user.toString() === userId
+    );
+
+    if (alreadyLiked) {
+      return next(
+        new appError(
+          'Ya diste like a este comentario',
+          400
+        )
+      );
+    }
+
+    comment.likes.users.push(userId);
+
+    comment.likes.count = comment.likes.users.length;
+
+    await comment.save();
+
+    res.json({
+      message: 'Like agregado',
+      likes: comment.likes.count
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+exports.unlikeComment = async (req, res, next) => {
+  try {
+    const comment = await Comment.findById(req.params.id);
+
+    if (!comment) {
+      return next(
+        new appError('Comentario no encontrado', 404)
+      );
+    }
+
+    const userId = req.user.id;
+
+    const alreadyLiked = comment.likes.users.some(
+      user => user.toString() === userId
+    );
+
+    if (!alreadyLiked) {
+      return next(
+        new appError(
+          'No has dado like a este comentario',
+          400
+        )
+      );
+    }
+
+    comment.likes.users = comment.likes.users.filter(
+      user => user.toString() !== userId
+    );
+
+    comment.likes.count = comment.likes.users.length;
+
+    await comment.save();
+
+    res.json({
+      message: 'Like eliminado',
+      likes: comment.likes.count
+    });
 
   } catch (error) {
     next(error);
