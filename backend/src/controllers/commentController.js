@@ -1,4 +1,5 @@
 const Comment = require('../models/Comment');
+const Post = require('../models/Post');
 
 const appError = require('../utils/appError');
 
@@ -6,19 +7,17 @@ exports.createComment = async (req, res, next) => {
   try {
     const { post, description } = req.body;
 
-    if (!post || !description) {
-      return res.status(400).json({
-        message: 'Post y descripción son obligatorios'
-      });
+    const postExists = await Post.findById(post);
+
+    if (!postExists) {
+      return next(new appError('Post no encontrado', 404));
     }
 
-    const comment = new Comment({
+    const comment = await Comment.create({
       post,
       description,
       user: req.user.id
     });
-
-    await comment.save();
 
     res.status(201).json({
       message: 'Comentario creado',
@@ -26,13 +25,17 @@ exports.createComment = async (req, res, next) => {
     });
 
   } catch (error) {
-    console.error(error);
     next(error);
   }
 };
 exports.getComments = async (req, res, next) => {
   try {
-    const comments = await Comment.find()
+    let filter = {};
+    if (req.user?.role !== 'admin') {
+      filter.status = 'approved';
+    }
+
+    const comments = await Comment.find(filter)
       .populate('user', 'username')
       .populate('post', 'title')
       .sort({ createdAt: -1 });
@@ -57,6 +60,13 @@ exports.getCommentsByPost = async (req, res, next) => {
 };
 exports.getCommentById = async (req, res, next) => {
   try {
+    let filter = {
+      post: req.params.postId
+    };
+
+    if (req.user?.role !== 'admin') {
+      filter.status = 'approved';
+    }
     const comment = await Comment.findById(req.params.id)
       .populate('user', 'username')
       .populate('post', 'title');
@@ -83,13 +93,9 @@ exports.updateComment = async (req, res, next) => {
       return res.status(403).json({ message: 'No autorizado' });
     }
 
-    const { description, status } = req.body;
+    const { description } = req.body;
 
     if (description) comment.description = description;
-
-    if (status && req.user.role === 'admin') {
-      comment.status = status;
-    }
 
     await comment.save();
 
@@ -117,6 +123,72 @@ exports.deleteComment = async (req, res, next) => {
     await comment.deleteOne();
 
     res.json({ message: 'Comentario eliminado' });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.approveComment = async (req, res, next) => {
+  try {
+
+    const comment = await Comment.findById(req.params.id);
+
+    if (!comment) {
+      return next(
+        new appError('Comentario no encontrado', 404)
+      );
+    }
+
+    comment.status = 'approved';
+
+    await comment.save();
+
+    res.json({
+      message: 'Comentario aprobado',
+      comment
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+exports.rejectComment = async (req, res, next) => {
+  try {
+
+    const comment = await Comment.findById(req.params.id);
+
+    if (!comment) {
+      return next(
+        new appError('Comentario no encontrado', 404)
+      );
+    }
+
+    comment.status = 'rejected';
+
+    await comment.save();
+
+    res.json({
+      message: 'Comentario rechazado',
+      comment
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getPendingComments = async (req, res, next) => {
+  try {
+
+    const comments = await Comment.find({
+      status: 'pending'
+    })
+      .populate('user', 'username')
+      .populate('post', 'title')
+      .sort({ createdAt: -1 });
+
+    res.json(comments);
 
   } catch (error) {
     next(error);
