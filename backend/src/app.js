@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
 const limiter = require('./middleware/rateLimiter');
 const errorHandler = require('./middleware/errorHandler');
 const helmet = require('helmet');
@@ -12,8 +11,16 @@ const app = express();
 app.use(cors());
 app.use(helmet({crossOriginResourcePolicy: false}));
 app.use(express.json());
-app.use(mongoSanitize());
-app.use(xss());
+
+app.use((req, res, next) => {
+  if (req.body) {
+    mongoSanitize.sanitize(req.body);
+  }
+  if (req.params) {
+    mongoSanitize.sanitize(req.params);
+  }
+  next();
+});
 
 app.use('/api', limiter);
 app.use('/api', require('./routes/authRoutes'));

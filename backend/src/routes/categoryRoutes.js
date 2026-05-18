@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const roleMiddleware = require('../middleware/roleMiddleware');
+const roleMiddleware = require('../permissions/rolePermissions');
 
 const {
   createCategory,

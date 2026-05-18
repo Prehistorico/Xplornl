@@ -3,7 +3,7 @@ const Category = require('../models/Category');
 const {
   isNonEmptyString,
   isValidObjectId
-} = require('./validateInputs');
+} = require('./valdateInputs');
 
 const validatePlace = async (req, res, next) => {
   try {

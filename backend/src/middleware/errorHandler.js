@@ -2,6 +2,7 @@ const logger = require('../utils/logger');
 
 const handleCastErrorDB = () => ({
   statusCode: 400,
+  status: 'fail',
   message: 'ID inválido'
 });
 
@@ -12,14 +13,21 @@ const handleValidationErrorDB = (err) => {
 
   return {
     statusCode: 400,
+    status: 'fail',
     message: errors.join(', ')
   };
 };
 
-const value = Object.values(err.keyValue).join(', ');
-return {
-  statusCode: 400,
-  message: `Valor duplicado: ${value}`
+const handleDuplicateFieldsDB = (err) => {
+
+  const value = Object.values(err.keyValue)
+    .join(', ');
+
+  return {
+    statusCode: 400,
+    status: 'fail',
+    message: `Valor duplicado: ${value}`
+  };
 };
 
 const sendErrorDev = (err, res) => {
@@ -90,11 +98,12 @@ const errorHandler = (err, req, res, next) => {
   }
 
   if (process.env.NODE_ENV === 'development') {
+
     sendErrorDev(error, res);
+
   } else {
 
     sendErrorProd(error, res);
   }
 };
-
 module.exports = errorHandler;

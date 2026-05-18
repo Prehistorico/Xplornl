@@ -2,8 +2,7 @@ const Place = require('../models/Place');
 const Category = require('../models/Category');
 const pickPlaceFields = require('../utils/pickPlaceFields');
 const catchAsync = require('../utils/catchAsync');
-
-const { isNonEmptyString, isValidObjectId } = require('../validators/validateInputs');
+const { isNonEmptyString, isValidObjectId } = require('../validators/valdateInputs.js');
 const appError = require('../utils/appError');
 
 exports.createPlace = async (req, res, next) => {

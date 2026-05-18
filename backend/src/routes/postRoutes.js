@@ -1,47 +1,58 @@
 const express = require('express');
+
 const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware');
+
+const validateObjectId = require('../validators/validateObjectId');
+
 const postOwnership = require('../permissions/postPermissions');
-const {toggleLikePost} = require('../controllers/postController');
-const {validateCreatePost, validateUpdatePost} = require('../validators/validatePost');
-const {validateObjectId} = require('../validators/validateObjectId');
+
+const {
+  validateCreatePost,
+  validateUpdatePost
+} = require('../validators/validatePost');
 
 const {
   createPost,
   getPosts,
   getPostById,
   updatePost,
-  deletePost
+  deletePost,
+  toggleLikePost
 } = require('../controllers/postController');
 
 router.get('/', getPosts);
+
 router.get(
-   '/:id', 
-   validateObjectId,
-   getPostById
+  '/:id',
+  validateObjectId(),
+  getPostById
 );
 
 router.post(
-   '/',
-   authMiddleware,
-   validateCreatePost,
-   createPost
+  '/',
+  validateCreatePost,
+  createPost
 );
+
 router.put(
-   '/:id',
-   authMiddleware,
-   postOwnership,
-   validateUpdatePost,
-   updatePost
+  '/:id',
+  validateObjectId(),
+  postOwnership,
+  validateUpdatePost,
+  updatePost
 );
-router.delete('/:id',
-   authMiddleware,
-   postOwnership,
-   deletePost
+
+router.delete(
+  '/:id',
+  validateObjectId(),
+  postOwnership,
+  deletePost
 );
-router.patch('/:id/like',
-   authMiddleware,
-   toggleLikePost
+
+router.patch(
+  '/:id/like',
+  validateObjectId(),
+  toggleLikePost
 );
 
 module.exports = router;

@@ -3,7 +3,7 @@ const Comment = require('../models/Comment');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const pickFields = require('../utils/pickFields');
+const pickFields = require('../utils/pickPostFields');
 
 exports.createPost = catchAsync(async (req, res) => {
 
