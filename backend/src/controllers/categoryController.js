@@ -7,15 +7,9 @@ exports.createCategory = async (req, res, next) => {
   try {
     const { name } = req.body;
 
-    if (!isNonEmptyString(name, 3)) {
-      return res.status(400).json({ message: 'Nombre inválido (mínimo 3 caracteres)' });
-    }
-
-    const category = new Category({
-      name: name.trim()
+    const category = await Category.create({
+      name
     });
-
-    await category.save();
 
     res.status(201).json({
       message: 'Categoría creada',
@@ -23,11 +17,17 @@ exports.createCategory = async (req, res, next) => {
     });
 
   } catch (error) {
+
     if (error.code === 11000) {
-      return res.status(400).json({ message: 'La categoría ya existe' });
+      return next(
+        new appError(
+          'La categoría ya existe',
+          400
+        )
+      );
     }
 
-   next(error);
+    next(error);
   }
 };
 exports.getCategories = async (req, res, next) => {
@@ -56,25 +56,41 @@ exports.getCategoryById = async (req, res, next) => {
 };
 exports.updateCategory = async (req, res, next) => {
   try {
-    const { name } = req.body;
-
-    if (name && !isNonEmptyString(name, 3)) {
-      return res.status(400).json({ message: 'Nombre inválido' });
-    }
-
-    const category = await Category.findByIdAndUpdate(
-      req.params.id,
-      { name: name?.trim() },
-      { new: true }
+    const category = await Category.findById(
+      req.params.id
     );
 
     if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return next(
+        new appError(
+          'Categoría no encontrada',
+          404
+        )
+      );
     }
 
-    res.json({ message: 'Categoría actualizada', category });
+    if (req.body.name !== undefined) {
+      category.name = req.body.name;
+    }
+
+    await category.save();
+
+    res.json({
+      message: 'Categoría actualizada',
+      category
+    });
 
   } catch (error) {
+
+    if (error.code === 11000) {
+      return next(
+        new appError(
+          'La categoría ya existe',
+          400
+        )
+      );
+    }
+
     next(error);
   }
 };
