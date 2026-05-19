@@ -1,72 +1,45 @@
 const Category = require('../models/Category');
 
-const { isNonEmptyString } = require('../validators/valdateInputs');
-const appError = require('../utils/appError');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.createCategory = async (req, res, next) => {
-  try {
-    const { name } = req.body;
-
-    const category = await Category.create({
-      name
-    });
+exports.createCategory = catchAsync(async (req, res) => {
+    const category = await Category.create({name: req.body.name});
 
     res.status(201).json({
       message: 'Categoría creada',
       category
     });
+});
+exports.getCategories = catchAsync(async (req, res) => {
 
-  } catch (error) {
+    const categories =
+      await Category.find()
 
-    if (error.code === 11000) {
-      return next(
-        new appError(
-          'La categoría ya existe',
-          400
-        )
-      );
-    }
-
-    next(error);
-  }
-};
-exports.getCategories = async (req, res, next) => {
-  try {
-    const categories = await Category.find();
+        .sort({ name: 1 });
 
     res.json(categories);
-
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getCategoryById = async (req, res, next) => {
-  try {
-    const category = await Category.findById(req.params.id);
+});
+exports.getCategoryById = catchAsync(async (req, res, next) => {
+    const category =
+      await Category.findById(req.params.id);
 
     if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return next(
+        new AppError('Categoría no encontrada', 404));
     }
 
     res.json(category);
-
-  } catch (error) {
-    next(error);
-  }
-};
-exports.updateCategory = async (req, res, next) => {
-  try {
-    const category = await Category.findById(
-      req.params.id
-    );
+});
+exports.updateCategory = catchAsync(async (req, res, next) => {
+    const category = await Category.findById(req.params.id);
 
     if (!category) {
       return next(
-        new appError(
+        new AppError(
           'Categoría no encontrada',
           404
-        )
-      );
+        ));
     }
 
     if (req.body.name !== undefined) {
@@ -79,32 +52,22 @@ exports.updateCategory = async (req, res, next) => {
       message: 'Categoría actualizada',
       category
     });
+});
+exports.deleteCategory = catchAsync(async (req, res, next) => {
+    const category = await Category.findById(req.params.id);
 
-  } catch (error) {
-
-    if (error.code === 11000) {
+    if (!category) {
       return next(
-        new appError(
-          'La categoría ya existe',
-          400
+        new AppError(
+          'Categoría no encontrada',
+          404
         )
       );
     }
 
-    next(error);
-  }
-};
-exports.deleteCategory = async (req, res, next) => {
-  try {
-    const category = await Category.findByIdAndDelete(req.params.id);
+    await category.deleteOne();
 
-    if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
-    }
-
-    res.json({ message: 'Categoría eliminada' });
-
-  } catch (error) {
-    next(error);
-  }
-};
+    res.json({
+      message: 'Categoría eliminada'
+    });
+});

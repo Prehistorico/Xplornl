@@ -3,50 +3,31 @@ const Post = require('../models/Post');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const containsBannedWords = require('../utils/containsBannedWords');
 
-const containsBannedWords =
-  require('../utils/containsBannedWords');
-
-  
 exports.createComment = catchAsync(async (req, res, next) => {
   const {post, description} = req.body;
-
-  const postExists =
-    await Post.findById(post);
+  const postExists = await Post.findById(post);
 
   if (!postExists) {
     return next(
-      new AppError(
-        'Post no encontrado',
-        404
-      ));
+      new AppError('Post no encontrado', 404));
   }
-
-  const hasBannedWords =
-    containsBannedWords(description);
+  const hasBannedWords = containsBannedWords(description);
 
   if (hasBannedWords) {
     return next(
-      new AppError(
-        'El comentario contiene lenguaje prohibido',
-        400
-      )
-    );
+      new AppError('El comentario contiene lenguaje prohibido', 400));
   }
 
   const comment = await Comment.create({
-
     post,
-
     description,
-
     user: req.user.id
   });
 
   res.status(201).json({
-
     message: 'Comentario creado',
-
     comment
   });
 });
@@ -58,7 +39,6 @@ exports.getComments = catchAsync(async (req, res) => {
   }
 
   const comments = await Comment.find(filter)
-
     .populate('user', 'username')
     .populate('post', 'title')
 
@@ -76,27 +56,20 @@ exports.getCommentsByPost = catchAsync(async (req, res) => {
     }
 
     const comments = await Comment.find(filter)
-
       .populate('user', 'username')
-
       .sort({ createdAt: -1 });
 
     res.json(comments);
 });
 exports.getCommentById = catchAsync(async (req, res, next) => {
-    const comment =
-      await Comment.findById(req.params.id)
+    const comment = await Comment.findById(req.params.id)
 
         .populate('user', 'username')
         .populate('post', 'title');
 
     if (!comment) {
       return next(
-        new AppError(
-          'Comentario no encontrado',
-          404
-        )
-      );
+        new AppError('Comentario no encontrado', 404));
     }
 
     if (
@@ -104,11 +77,7 @@ exports.getCommentById = catchAsync(async (req, res, next) => {
       req.user?.role !== 'admin'
     ) {
       return next(
-        new AppError(
-          'Comentario no encontrado',
-          404
-        )
-      );
+        new AppError('Comentario no encontrado',404));
     }
 
     res.json(comment);
@@ -124,9 +93,7 @@ exports.updateComment = catchAsync(async (req, res) => {
     await comment.save();
 
     res.json({
-
       message: 'Comentario actualizado',
-
       comment
     });
 });
@@ -140,16 +107,11 @@ exports.deleteComment =catchAsync(async (req, res) => {
 
 
 exports.toggleLikeComment = catchAsync(async (req, res, next) => {
-    const comment =
-      await Comment.findById(req.params.id);
+    const comment = await Comment.findById(req.params.id);
 
     if (!comment) {
       return next(
-        new AppError(
-          'Comentario no encontrado',
-          404
-        )
-      );
+        new AppError('Comentario no encontrado', 404));
     }
 
     const userId = req.user.id;
@@ -168,12 +130,10 @@ exports.toggleLikeComment = catchAsync(async (req, res, next) => {
         );
 
     } else {
-
       comment.likes.users.push(userId);
     }
 
-    comment.likes.count =
-      comment.likes.users.length;
+    comment.likes.count = comment.likes.users.length;
 
     await comment.save();
 
@@ -184,22 +144,16 @@ exports.toggleLikeComment = catchAsync(async (req, res, next) => {
         : 'Like agregado',
 
       totalLikes: comment.likes.count,
-
       liked: !alreadyLiked
     });
 });
 
 exports.approveComment = catchAsync(async (req, res, next) => {
-    const comment =
-      await Comment.findById(req.params.id);
+    const comment = await Comment.findById(req.params.id);
 
     if (!comment) {
       return next(
-        new AppError(
-          'Comentario no encontrado',
-          404
-        )
-      );
+        new AppError('Comentario no encontrado',404));
     }
 
     comment.status = 'approved';
@@ -207,23 +161,16 @@ exports.approveComment = catchAsync(async (req, res, next) => {
     await comment.save();
 
     res.json({
-
       message: 'Comentario aprobado',
-
       comment
     });
 });
 exports.rejectComment = catchAsync(async (req, res, next) => {
-    const comment =
-      await Comment.findById(req.params.id);
+    const comment = await Comment.findById(req.params.id);
 
     if (!comment) {
       return next(
-        new AppError(
-          'Comentario no encontrado',
-          404
-        )
-      );
+        new AppError('Comentario no encontrado', 404));
     }
 
     comment.status = 'rejected';
@@ -231,23 +178,15 @@ exports.rejectComment = catchAsync(async (req, res, next) => {
     await comment.save();
 
     res.json({
-
       message: 'Comentario rechazado',
-
       comment
     });
 });
 
 exports.getPendingComments = catchAsync(async (req, res) => {
-    const comments =
-      await Comment.find({
-        status: 'pending'
-      })
-
+    const comments = await Comment.find({status: 'pending'})
         .populate('user', 'username')
         .populate('post', 'title')
-
         .sort({ createdAt: -1 });
-
     res.json(comments);
 });

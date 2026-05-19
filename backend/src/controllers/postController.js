@@ -4,8 +4,7 @@ const Comment = require('../models/Comment');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
-const pickFields =
-  require('../utils/pickFields');
+const pickFields = require('../utils/pickFields');
 
 exports.createPost = catchAsync(async (req, res) => {
     const post = await Post.create({
@@ -55,16 +54,11 @@ exports.getPosts = catchAsync(async (req, res) => {
     }
 
     const page = Math.max(
-      parseInt(req.query.page) || 1,
-      1
+      parseInt(req.query.page) || 1, 1
     );
 
     const limit = Math.min(
-      Math.max(
-        parseInt(req.query.limit) || 10,
-        1
-      ),
-      50
+      Math.max(parseInt(req.query.limit) || 10,1), 50
     );
 
     const skip = (page - 1) * limit;
@@ -97,8 +91,7 @@ exports.getPosts = catchAsync(async (req, res) => {
         {
           $group: {
             _id: '$post',
-            count: { $sum: 1 }
-          }
+            count: { $sum: 1 }}
         }
       ]);
 
@@ -127,7 +120,6 @@ exports.getPosts = catchAsync(async (req, res) => {
         Math.ceil(totalPosts / limit),
 
       totalPosts,
-
       posts: postsWithCounts
     });
 });
@@ -149,11 +141,7 @@ exports.getPostById = catchAsync(async (req, res, next) => {
 
     if (!post) {
       return next(
-        new AppError(
-          'Post no encontrado',
-          404
-        )
-      );
+        new AppError('Post no encontrado', 404));
     }
 
     if (
@@ -161,10 +149,7 @@ exports.getPostById = catchAsync(async (req, res, next) => {
       req.user?.role !== 'admin'
     ) {
       return next(
-        new AppError(
-          'Post no encontrado',
-          404
-        ));
+        new AppError('Post no encontrado', 404));
     }
 
     const comments = await Comment.find({
@@ -173,7 +158,6 @@ exports.getPostById = catchAsync(async (req, res, next) => {
       })
 
         .populate('user', 'username')
-
         .sort({ createdAt: -1 });
 
     res.json({
@@ -220,10 +204,7 @@ exports.toggleLikePost = catchAsync(async (req, res, next) => {
 
     if (!post) {
       return next(
-        new AppError(
-          'Post no encontrado',
-          404
-        ));
+        new AppError('Post no encontrado', 404));
     }
 
     const userId = req.user.id;
@@ -253,7 +234,6 @@ exports.toggleLikePost = catchAsync(async (req, res, next) => {
         : 'Like agregado',
 
       totalLikes: post.likes.length,
-
       liked: !alreadyLiked
     });
 });
@@ -263,10 +243,7 @@ exports.approvePost = catchAsync(async (req, res, next) => {
 
     if (!post) {
       return next(
-        new AppError(
-          'Post no encontrado',
-          404
-        ));
+        new AppError('Post no encontrado', 404));
     }
 
     post.status = 'approved';
@@ -283,10 +260,7 @@ exports.rejectPost = catchAsync(async (req, res, next) => {
 
     if (!post) {
       return next(
-        new AppError(
-          'Post no encontrado',
-          404
-        ));
+        new AppError('Post no encontrado', 404));
     }
 
     post.status = 'rejected';
@@ -306,12 +280,10 @@ exports.getPendingPosts = catchAsync(async (req, res) => {
           'user',
           'username name'
         )
-
         .populate(
           'place',
           'name'
         )
-
         .populate(
           'category',
           'name'

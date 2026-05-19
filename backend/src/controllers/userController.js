@@ -1,116 +1,144 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const User = require('../models/User');
+
 const sendEmail = require('../services/sendEmail');
-const appError = require('../utils/appError');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
+const pickFields = require('../utils/pickFields');
 
-exports.getUsers = async (req, res, next) => {
-  try {
-    const users = await User.find().select('-password');
-    res.json(users);
-  } catch (error) {
-    console.error(error);
-    next(error);
+exports.getUsers = catchAsync(async (req, res) => {
+  const users = await User.find()
+    .select('-password');
+
+  res.json(users);
+});
+exports.getUserById = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const isOwner = req.user.id === id;
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return next(
+      new AppError('Usuario no autorizado', 403));
   }
-};
-exports.getUserById = async (req, res, next) => {
-  try {
-    const { id } = req.params;
 
-    if (req.user.role === 'cliente' && req.user.id !== id) {
-      return next(new appError('Usuario no autorizado', 403));
-    }
+  const user = await User.findById(id)
+    .select('-password');
 
-    const user = await User.findById(id).select('-password');
-    if (!user) {
-      return next(new appError('Usuario no encontrado', 404));
-    }
-
-    res.json(user);
-  } catch (error) {
-    console.error(error);
-    next(error);
+  if (!user) {
+    return next(
+      new AppError('Usuario no encontrado', 404));
   }
-};
-exports.updateUser = async (req, res, next) => {
-  try {
-    const { id } = req.params;
 
-    if (req.user.role === 'cliente' && req.user.id !== id) {
-      return next(new appError('Usuario no autorizado', 403));
-    }
+  res.json(user);
+});
+exports.updateUser = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const isOwner = req.user.id === id;
+  const isAdmin = req.user.role === 'admin';
 
-    const user = await User.findById(id);
-    if (!user) {
-      return next(new appError('Usuario no encontrado', 404));
-    }
+  if (!isOwner && !isAdmin) {
+    return next(
+      new AppError('Usuario no autorizado', 403));
+  }
 
-    if (req.body.password) {
-      user.password = req.body.password; 
-    }
+  const user = await User.findById(id);
 
-    if (req.body.email && req.body.email !== user.email) {
-      const existingUser = await User.findOne({ email: req.body.email });
-      if (existingUser) {
-        return next(new appError('El correo ya está registrado', 400));
-      }
+  if (!user) {
+    return next(
+      new AppError('Usuario no encontrado', 404));
+  }
 
-      const emailToken = crypto.randomBytes(32).toString('hex');
-      const emailTokenHash = crypto.createHash('sha256').update(emailToken).digest('hex');
+  const updates = pickFields(req.body, [
+    'username',
+    'name',
+    'birthdate'
+  ]);
 
-      user.email = req.body.email;
-      user.isVerified = false;
-      user.emailToken = emailTokenHash;
+  Object.assign(user, updates);
 
-      await user.save();
+  if (req.body.password) {
+    user.password = req.body.password;
+  }
 
-      const verifyURL = `http://localhost:5000/api/verify/${emailToken}`;
-      await sendEmail(
-        req.body.email,
-        'Verifica tu nuevo correo',
-        `<h1>Verificación de cambio de correo</h1>
-         <p>Haz click para verificar tu nuevo correo:</p>
-         <a href="${verifyURL}">${verifyURL}</a>`
-      );
+  if (
+    req.body.email &&
+    req.body.email !== user.email
+  ) {
 
-      return res.json({
-        message: 'Correo actualizado. Revisa tu bandeja para verificar tu nuevo correo.'
-      });
-    }
-    
-    if (req.body.username) user.username = req.body.username;
-    if (req.body.name) user.name = req.body.name;
-    if (req.body.birthdate) user.birthdate = req.body.birthdate;
-
-    await user.save();
-
-    res.json({
-      message: 'Usuario actualizado',
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        name: user.name,
-        birthdate: user.birthdate
-      }
+    const existingUser = await User.findOne({
+      email: req.body.email
     });
 
-  } catch (error) {
-    next(error);
-  }
-};
-exports.deleteUser = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    if (req.user.role === 'cliente' && req.user.id !== id) {
-      return next(new appError('Usuario no autorizado', 403));
+    if (existingUser) {
+      return next(
+        new AppError('El correo ya está registrado',400));
     }
 
-    await User.findByIdAndDelete(id);
+    const emailToken =
+      crypto.randomBytes(32).toString('hex');
 
-    res.json({ message: 'Usuario eliminado' });
-  } catch (error) {
-    next(error);
+    const emailTokenHash =
+      crypto
+        .createHash('sha256')
+        .update(emailToken)
+        .digest('hex');
+
+    user.email = req.body.email;
+    user.isVerified = false;
+    user.emailToken = emailTokenHash;
+
+    const verifyURL =
+      `http://localhost:5000/api/verify/${emailToken}`;
+
+    await sendEmail(
+      req.body.email,
+      'Verifica tu nuevo correo',
+      `
+      <h1>Verificación de cambio de correo</h1>
+      <p>Haz click para verificar tu nuevo correo:</p>
+      <a href="${verifyURL}">
+        ${verifyURL}
+      </a>
+      `
+    );
   }
-};
+
+  await user.save();
+
+  res.json({
+
+    message: 'Usuario actualizado',
+
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      name: user.name,
+      birthdate: user.birthdate
+    }
+  });
+});
+exports.deleteUser = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const isOwner = req.user.id === id;
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return next(
+      new AppError('Usuario no autorizado', 403));
+  }
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    return next(
+      new AppError('Usuario no encontrado', 404));
+  }
+
+  await user.deleteOne();
+
+  res.json({
+    message: 'Usuario eliminado'
+  });
+});
