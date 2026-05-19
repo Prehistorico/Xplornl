@@ -1,71 +1,38 @@
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
-
-const sendEmail = require('../services/sendEmail');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const pickFields = require('../utils/pickFields');
 
-const generateToken = (user) => {
-  return jwt.sign(
-    {
-      id: user._id,
-      role: user.role
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: '1h'
-    }
-  );
-};
-const generateEmailToken = () => {
+const {
+  generateToken,
+  generateEmailToken,
+  hashToken
+} = require('../services/authService');
 
-  const rawToken =
-    crypto.randomBytes(32).toString('hex');
-
-  const hashedToken =
-    crypto
-      .createHash('sha256')
-      .update(rawToken)
-      .digest('hex');
-
-  return {rawToken, hashedToken};
-};
+const {sendVerificationEmail} = require('../services/emailService');
 
 exports.register = catchAsync(async (req, res, next) => {
   const {username, email} = req.body;
+  const existingUsername =await User.findOne({username});
 
-  const existingUsername = await User.findOne({ username });
   if (existingUsername) {
     return next(
-      new AppError(
-        'El nombre de usuario ya está registrado',
-        400
-      )
-    );
+      new AppError('El nombre de usuario ya está registrado', 400));
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({email});
+
   if (existingUser) {
     return next(
-      new AppError(
-        'El correo ya está registrado',
-        400
-      )
-    );
+      new AppError('El correo ya está registrado',400));
   }
 
-  const {
-    rawToken,
-    hashedToken
-  } = generateEmailToken();
+  const {rawToken, hashedToken} = generateEmailToken();
 
   const user = await User.create({
-
     ...pickFields(req.body, [
       'username',
       'name',
@@ -73,31 +40,17 @@ exports.register = catchAsync(async (req, res, next) => {
       'email',
       'password'
     ]),
-
     emailToken: hashedToken
   });
 
-  const verifyURL =
-    `http://localhost:5000/api/verify/${rawToken}`;
-
-  await sendEmail(
-    user.email,
-    'Verifica tu cuenta',
-    `
-    <h1>Verificación</h1>
-    <p>Haz click:</p>
-    <a href="${verifyURL}">
-      ${verifyURL}
-    </a>
-    `
-  );
+  await sendVerificationEmail(user.email, rawToken);
 
   res.status(201).json({
     message:
       'Usuario registrado. Revisa tu correo para verificar tu cuenta'
   });
 });
-exports.login = catchAsync(async (req, res, next) => {
+exports.login = catchAsync(async (req, res,next) => {
   const {email, password} = req.body;
 
   if (!email || !password) {
@@ -105,7 +58,7 @@ exports.login = catchAsync(async (req, res, next) => {
       new AppError('Todos los campos son obligatorios', 400));
   }
 
-  const user = await User.findOne({email}).select('+password');
+  const user = await User.findOne({email}) .select('+password');
 
   if (!user) {
     return next(
@@ -131,6 +84,7 @@ exports.login = catchAsync(async (req, res, next) => {
   const token = generateToken(user);
 
   res.json({
+
     message: 'Login exitoso',
 
     user: {
@@ -144,11 +98,7 @@ exports.login = catchAsync(async (req, res, next) => {
   });
 });
 exports.verifyEmail = catchAsync(async (req, res, next) => {
-  const hashedToken =
-    crypto
-      .createHash('sha256')
-      .update(req.params.token)
-      .digest('hex');
+  const hashedToken = hashToken(req.params.token);
 
   const user = await User.findOne({emailToken: hashedToken});
 

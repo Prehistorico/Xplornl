@@ -20,18 +20,14 @@ exports.validateCreateComment = (req, res, next) => {
 
   if (trimmedDescription.length < 2) {
     return next(
-      new appError(
-        'El comentario debe tener al menos 2 caracteres',
-        400
+      new appError('El comentario debe tener al menos 2 caracteres', 400
       )
     );
   }
 
   if (trimmedDescription.length > 1000) {
     return next(
-      new appError(
-        'El comentario no puede superar los 1000 caracteres',
-        400
+      new appError('El comentario no puede superar los 1000 caracteres', 400
       )
     );
   }
@@ -40,7 +36,6 @@ exports.validateCreateComment = (req, res, next) => {
 
   next();
 };
-
 exports.validateUpdateComment = (req, res, next) => {
   const { description, status } = req.body;
 
@@ -56,20 +51,14 @@ exports.validateUpdateComment = (req, res, next) => {
 
     if (trimmedDescription.length < 2) {
       return next(
-        new appError(
-          'El comentario debe tener al menos 2 caracteres',
-          400
+        new appError('El comentario debe tener al menos 2 caracteres', 400
         )
       );
     }
 
     if (trimmedDescription.length > 1000) {
       return next(
-        new appError(
-          'El comentario no puede superar los 1000 caracteres',
-          400
-        )
-      );
+        new appError('El comentario no puede superar los 1000 caracteres', 400));
     }
 
     req.body.description = trimmedDescription;

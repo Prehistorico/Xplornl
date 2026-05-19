@@ -1,18 +1,10 @@
 const Category = require('../models/Category');
 
-const {
-  isNonEmptyString,
-  isValidObjectId
-} = require('./valdateInputs');
+const {isNonEmptyString, isValidObjectId} = require('./valdateInputs');
 
 const validatePlace = async (req, res, next) => {
   try {
-    const {
-      name,
-      category,
-      location,
-      contact
-    } = req.body;
+    const {name, category, location, contact} = req.body;
 
     if (name !== undefined) {
       if (!isNonEmptyString(name, 3)) {

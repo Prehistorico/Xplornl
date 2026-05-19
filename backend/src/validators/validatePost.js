@@ -8,64 +8,34 @@ const {
 
 const AppError = require('../utils/appError');
 
-const validateReference = async ({
-  value,
-  model,
-  fieldName
-}) => {
-
-  if (!isValidObjectId(value)) {
-
-    throw new AppError(
-      `${fieldName} inválido`,
-      400
-    );
+const validateReference = async ({value, model, fieldName}) => {
+   if (!isValidObjectId(value)) {
+    throw new AppError(`${fieldName} inválido`,400);
   }
 
   const exists = await model.findById(value);
 
   if (!exists) {
-
-    throw new AppError(
-      `${fieldName} no existe`,
-      404
-    );
+    throw new AppError(`${fieldName} no existe`,404);
   }
 };
-exports.validateCreatePost = async (
-  req,
-  res,
-  next
-) => {
-
+exports.validateCreatePost = async (req, res, next) => {
   try {
-
-    const {
-      title,
-      description,
-      place,
-      category
-    } = req.body;
+    const {title, description, place, category} = req.body;
 
     if (!isNonEmptyString(title, 3)) {
-
       return next(
         new AppError('Título inválido', 400)
       );
     }
 
-    if (
-      description &&
-      !isNonEmptyString(description, 5)
-    ) {
-
+    if (description && isNonEmptyString(description, 5)) {
       return next(
         new AppError('Descripción inválida', 400)
       );
     }
 
     if (place) {
-
       await validateReference({
         value: place,
         model: Place,
@@ -74,7 +44,6 @@ exports.validateCreatePost = async (
     }
 
     if (category) {
-
       await validateReference({
         value: category,
         model: Category,
@@ -90,29 +59,20 @@ exports.validateCreatePost = async (
 };
 exports.validateUpdatePost = async (req, res, next) => {
    try {
-
       const { title, description, tags, status } = req.body;
-
-      if (
-         title !== undefined &&
-         !isNonEmptyString(title, 3)
-      ) {
+      if ( title !== undefined && !isNonEmptyString(title, 3)) {
          return next(
             new AppError('Título inválido', 400)
          );
       }
 
-      if (
-         description !== undefined &&
-         !isNonEmptyString(description, 5)
-      ) {
+      if (description !== undefined && !isNonEmptyString(description, 5)) {
          return next(
             new AppError('Descripción inválida', 400)
          );
       }
 
       if (tags?.place) {
-
          if (!isValidObjectId(tags.place)) {
             return next(
                new AppError('Place inválido', 400)
@@ -129,7 +89,6 @@ exports.validateUpdatePost = async (req, res, next) => {
       }
 
       if (tags?.category) {
-
          if (!isValidObjectId(tags.category)) {
             return next(
                new AppError('Category inválida', 400)
@@ -161,9 +120,7 @@ exports.validateUpdatePost = async (req, res, next) => {
 
          if (req.user.role !== 'admin') {
             return next(
-               new AppError(
-                  'No autorizado para cambiar status',
-                  403
+               new AppError('No autorizado para cambiar status', 403
                )
             );
          }
