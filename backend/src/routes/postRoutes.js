@@ -1,58 +1,66 @@
 const express = require('express');
-
 const router = express.Router();
 
-const validateObjectId = require('../validators/validateObjectId');
-
-const postOwnership = require('../permissions/postPermissions');
-
+const Post =
+  require('../models/Post');
+const validateObjectId =
+  require('../validators/validateObjectId');
+const checkOwnership =
+  require('../middlewares/checkOwnership');
+const {
+  protect, 
+  admin
+} = require('../middlewares/authMiddleware');
 const {
   validateCreatePost,
   validateUpdatePost
 } = require('../validators/validatePost');
-
 const {
   createPost,
   getPosts,
   getPostById,
   updatePost,
   deletePost,
+  approvePost,
+  rejectPost,
+  getPendingPosts,
   toggleLikePost
 } = require('../controllers/postController');
 
+
 router.get('/', getPosts);
+router.get('/pending', protect, admin, getPendingPosts);
+router.get('/:id', validateObjectId(), getPostById);
 
-router.get(
-  '/:id',
+router.post('/', protect, validateCreatePost, createPost);
+router.patch(
+'/:id',
+  protect,
   validateObjectId(),
-  getPostById
-);
-
-router.post(
-  '/',
-  validateCreatePost,
-  createPost
-);
-
-router.put(
-  '/:id',
-  validateObjectId(),
-  postOwnership,
+  checkOwnership({
+    model: Post,
+    resourceName: 'Post',
+    attachAs: 'post'
+  }),
   validateUpdatePost,
   updatePost
 );
-
 router.delete(
   '/:id',
+  protect,
   validateObjectId(),
-  postOwnership,
+  checkOwnership({
+    model: Post,
+    resourceName: 'Post',
+    attachAs: 'post'
+  }),
   deletePost
 );
 
-router.patch(
-  '/:id/like',
-  validateObjectId(),
-  toggleLikePost
-);
+
+router.patch('/:id/approve', protect, admin, validateObjectId(), approvePost);
+router.patch('/:id/reject', protect, admin, validateObjectId(), rejectPost);
+
+router.patch('/:id/like', protect, validateObjectId(),  toggleLikePost);
 
 module.exports = router;

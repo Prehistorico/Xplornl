@@ -1,11 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-const roleMiddleware = require('../permissions/rolePermissions');
-const validatePlace = require('../validators/validatePlace');
-const sanitizePlace = require('../validators/sanitizePlace');
-const validateObjectId = require('../validators/validateObjectId');
-
+const validateObjectId =
+  require('../validators/validateObjectId');
+const {
+  protect,
+  admin
+} = require('../middlewares/authMiddleware');
+const validatePlace =
+  require('../validators/validatePlace');
+const sanitizePlace =
+  require('../validators/sanitizePlace');
 const {
   createPlace,
   getPlaces,
@@ -15,22 +20,20 @@ const {
 } = require('../controllers/placeController');
 
 router.get('/', getPlaces);
-router.get(
-  '/:id',
-  validateObjectId(),
-  getPlaceById
-);
+router.get('/:id', validateObjectId(), getPlaceById);
 
 router.post(
   '/',
-  roleMiddleware('admin'),
+  protect,
+  admin,
   sanitizePlace,
   validatePlace,
   createPlace
 );
-router.put(
+router.patch(
   '/:id',
-  roleMiddleware('admin'),
+  protect,
+  admin,
   validateObjectId(),
   sanitizePlace,
   validatePlace,
@@ -38,7 +41,8 @@ router.put(
 );
 router.delete(
   '/:id',
-  roleMiddleware('admin'),
+  protect,
+  admin,
   validateObjectId(),
   deletePlace
 );

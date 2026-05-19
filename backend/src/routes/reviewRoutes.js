@@ -1,6 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
+const Review = require('../models/Review');
+const validateObjectId =
+  require('../validators/validateObjectId');
+const checkOwnership =
+  require('../middlewares/checkOwnership');
+const {
+  protect,
+  admin
+} = require('../middlewares/authMiddleware');
 const {
   validateCreateReview,
   validateUpdateReview
@@ -16,23 +25,39 @@ const {
   rejectReview,
   getPendingReviews
 } = require('../controllers/reviewController');
-const {
-  protect,
-  admin
-} = require('../middlewares/authMiddleware');
 
-
-router.get('/', protect, getReviews);
+router.get('/', getReviews);
 router.get('/pending', protect, admin, getPendingReviews);
-
-router.get('/place/:placeId', getReviewsByPlace);
-router.get('/:id', getReviewById);
-
-router.patch('/:id/approve', protect, admin, approveReview);
-router.patch('/:id/reject', protect, admin, rejectReview);
+router.get('/place/:placeId', validateObjectId('placeId'), getReviewsByPlace);
+router.get('/:id', validateObjectId(), getReviewById);
 
 router.post('/', protect, validateCreateReview, createReview);
-router.patch('/:id', protect, validateUpdateReview, updateReview);
-router.delete('/:id', protect, deleteReview);
+router.patch(
+  '/:id',
+  protect,
+  validateObjectId(),
+  checkOwnership({
+    model: Review,
+    resourceName: 'Reseña',
+    attachAs: 'review'
+  }),
+  validateUpdateReview,
+  updateReview
+);
+router.delete(
+  '/:id',
+  protect,
+  validateObjectId(),
+  checkOwnership({
+    model: Review,
+    resourceName: 'Reseña',
+    attachAs: 'review'
+  }),
+  deleteReview
+);
+
+
+router.patch('/:id/approve', protect, admin, validateObjectId(), approveReview);
+router.patch('/:id/reject', protect, admin, validateObjectId(), rejectReview);
 
 module.exports = router;

@@ -1,6 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
+const Comment =
+  require('../models/Comment');
+const validateObjectId =
+  require('../validators/validateObjectId');
+const checkOwnership =
+  require('../middlewares/checkOwnership');
+const {
+  protect,
+  admin
+} = require('../middlewares/authMiddleware');
 const {
   validateCreateComment,
   validateUpdateComment
@@ -15,28 +25,42 @@ const {
   approveComment,
   rejectComment,
   getPendingComments,
-  likeComment,
-  unlikeComment
+  toggleLikeComment
 } = require('../controllers/commentController');
-const {
-  protect,
-  admin
-} = require('../middlewares/authMiddleware');
 
-
-router.get('/', protect, getComments);
+router.get('/', getComments);
 router.get('/pending', protect, admin, getPendingComments);
-router.get('/post/:postId', getCommentsByPost);
-router.get('/:id',getCommentById);
-
-router.patch('/:id/approve', protect, admin, approveComment);
-router.patch('/:id/reject', protect, admin, rejectComment);
-
-router.patch('/:id/like', protect, likeComment);
-router.patch('/:id/unlike', protect, unlikeComment);
+router.get('/post/:postId', validateObjectId('postId'), getCommentsByPost);
+router.get('/:id', validateObjectId(), getCommentById);
 
 router.post('/', protect, validateCreateComment, createComment);
-router.put('/:id', protect, validateUpdateComment, updateComment);
-router.delete('/:id', protect, deleteComment);
+router.patch(
+  '/:id',
+  protect,
+  validateObjectId(),
+  checkOwnership({
+    model: Comment,
+    resourceName: 'Comentario',
+    attachAs: 'comment'
+  }),
+  validateUpdateComment,
+  updateComment
+);
+router.delete(
+  '/:id',
+  protect,
+  validateObjectId(),
+  checkOwnership({
+    model: Comment,
+    resourceName: 'Comentario',
+    attachAs: 'comment'
+  }),
+  deleteComment
+);
+
+router.patch('/:id/approve', protect, admin, validateObjectId(), approveComment);
+router.patch('/:id/reject', protect, admin, validateObjectId(), rejectComment);
+
+router.patch('/:id/like', protect, validateObjectId(), toggleLikeComment);
 
 module.exports = router;

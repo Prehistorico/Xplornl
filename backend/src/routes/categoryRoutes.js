@@ -1,6 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
+const validateObjectId =
+  require('../validators/validateObjectId');
+const {
+  protect,
+  admin
+} = require('../middlewares/authMiddleware');
+const {
+  validateCreateCategory,
+  validateUpdateCategory
+} = require('../validators/validateCategory');
 const {
   createCategory,
   getCategories,
@@ -8,21 +18,13 @@ const {
   updateCategory,
   deleteCategory
 } = require('../controllers/categoryController');
-const {
-  validateCreateCategory,
-  validateUpdateCategory
-} = require('../validators/validateCategory');
-const {
-  protect,
-  admin
-} = require('../middlewares/authMiddleware');
 
 
 router.get('/', getCategories);
-router.get('/:id', getCategoryById);
+router.get('/:id', validateObjectId(), getCategoryById);
 
 router.post('/', protect, admin, validateCreateCategory, createCategory);
-router.patch('/:id', protect, admin, validateUpdateCategory, updateCategory);
-router.delete('/:id', protect, admin, deleteCategory);
+router.patch('/:id', protect, admin, validateObjectId(), validateUpdateCategory, updateCategory);
+router.delete('/:id', protect, admin, validateObjectId(), deleteCategory);
 
 module.exports = router;

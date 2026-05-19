@@ -3,223 +3,320 @@ const Comment = require('../models/Comment');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const pickFields = require('../utils/pickPostFields');
+
+const pickFields =
+  require('../utils/pickFields');
 
 exports.createPost = catchAsync(async (req, res) => {
+    const post = await Post.create({
+      ...pickFields(req.body, [
+        'title',
+        'description',
+        'place',
+        'category'
+      ]),
+      user: req.user.id
+    });
 
-  const post = await Post.create({
-
-    ...pickFields(req.body, [
-      'title',
-      'description',
-      'place',
-      'category'
-    ]),
-
-    user: req.user.id
-  });
-
-  res.status(201).json({
-
-    message: 'Post creado',
-    post
-  });
+    res.status(201).json({
+      message: 'Post creado',
+      post
+    });
 });
 exports.getPosts = catchAsync(async (req, res) => {
+    const {
+      search,
+      category,
+      place,
+      status
+    } = req.query;
 
-  const {
-    search,
-    category,
-    place,
-    status
-  } = req.query;
+    const filter = {};
 
-  const filter = {};
-
-  if (search) {
-    filter.$text = {
-      $search: search
-    };
-  }
-
-  if (category) {
-    filter.category = category;
-  }
-
-  if (place) {
-    filter.place = place;
-  }
-
-  if (status) {
-    filter.status = status;
-  }
-
-  const page = Math.max(
-    parseInt(req.query.page) || 1,
-    1
-  );
-
-  const limit = Math.min(
-    Math.max(parseInt(req.query.limit) || 10, 1),
-    50
-  );
-
-  const skip = (page - 1) * limit;
-
-  const totalPosts = await Post.countDocuments(filter);
-
-  const posts = await Post.find(filter)
-
-    .populate('user', 'username name')
-    .populate('place', 'name')
-    .populate('category', 'name')
-
-    .sort({ createdAt: -1 })
-
-    .skip(skip)
-    .limit(limit)
-
-    .lean();
-
-  const postIds = posts.map(post => post._id);
-
-  const commentCounts = await Comment.aggregate([
-    {
-      $match: {
-        post: { $in: postIds }
-      }
-    },
-    {
-      $group: {
-        _id: '$post',
-        count: { $sum: 1 }
-      }
+    if (search) {
+      filter.$text = {
+        $search: search
+      };
     }
-  ]);
+    if (category) {
+      filter.category = category;
+    }
+    if (place) {
+      filter.place = place;
+    }
+    if (req.user?.role !== 'admin') {
+      filter.status = 'approved';
+    }
+    if (
+      status &&
+      req.user?.role === 'admin'
+    ) {
+      filter.status = status;
+    }
 
-  const commentMap = {};
+    const page = Math.max(
+      parseInt(req.query.page) || 1,
+      1
+    );
 
-  commentCounts.forEach(item => {
-    commentMap[item._id.toString()] = item.count;
-  });
+    const limit = Math.min(
+      Math.max(
+        parseInt(req.query.limit) || 10,
+        1
+      ),
+      50
+    );
 
-  const postsWithCounts = posts.map(post => ({
-    ...post,
-    totalComments:
-      commentMap[post._id.toString()] || 0
-  }));
+    const skip = (page - 1) * limit;
 
-  res.json({
+    const totalPosts = await Post.countDocuments(filter);
+    const posts = await Post.find(filter)
 
-    currentPage: page,
+      .populate('user', 'username name')
+      .populate('place', 'name')
+      .populate('category', 'name')
 
-    totalPages: Math.ceil(totalPosts / limit),
+      .sort({ createdAt: -1 })
 
-    totalPosts,
+      .skip(skip)
+      .limit(limit)
 
-    posts: postsWithCounts
-  });
+      .lean();
+
+    const postIds =
+      posts.map(post => post._id);
+
+    const commentCounts =
+      await Comment.aggregate([
+        {
+          $match: {
+            post: { $in: postIds },
+            status: 'approved'
+          }
+        },
+        {
+          $group: {
+            _id: '$post',
+            count: { $sum: 1 }
+          }
+        }
+      ]);
+
+    const commentMap = {};
+
+    commentCounts.forEach(item => {
+      commentMap[item._id.toString()] =
+        item.count;
+    });
+
+    const postsWithCounts =
+      posts.map(post => ({
+        ...post,
+
+        totalComments:
+          commentMap[
+            post._id.toString()
+          ] || 0
+      }));
+
+    res.json({
+
+      currentPage: page,
+
+      totalPages:
+        Math.ceil(totalPosts / limit),
+
+      totalPosts,
+
+      posts: postsWithCounts
+    });
 });
 exports.getPostById = catchAsync(async (req, res, next) => {
 
-  const post = await Post.findById(req.params.id)
+    const post = await Post.findById(req.params.id)
+        .populate(
+          'user',
+          'username name'
+        )
+        .populate(
+          'place',
+          'name description'
+        )
+        .populate(
+          'category',
+          'name'
+        );
 
-    .populate('user', 'username name')
-    .populate('place', 'name description')
-    .populate('category', 'name');
+    if (!post) {
+      return next(
+        new AppError(
+          'Post no encontrado',
+          404
+        )
+      );
+    }
 
-  if (!post) {
-    return next(
-      new AppError('Post no encontrado', 404)
-    );
-  }
+    if (
+      post.status !== 'approved' &&
+      req.user?.role !== 'admin'
+    ) {
+      return next(
+        new AppError(
+          'Post no encontrado',
+          404
+        ));
+    }
 
-  const comments = await Comment.find({
-    post: req.params.id
-  })
+    const comments = await Comment.find({
+        post: req.params.id,
+        status: 'approved'
+      })
 
-    .populate('user', 'username')
+        .populate('user', 'username')
 
-    .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 });
 
-  res.json({
-    ...post.toObject(),
-    comments
-  });
+    res.json({
+      ...post.toObject(),
+      comments
+    });
 });
 exports.updatePost = catchAsync(async (req, res) => {
+    const post = req.post;
 
-  const post = req.post;
+    const updates = pickFields(req.body, [
+      'title',
+      'description',
+      'place',
+      'category',
+      'status'
+    ]);
 
-  const updates = pickFields(req.body, [
-    'title',
-    'description',
-    'place',
-    'category',
-    'status'
-  ]);
+    Object.assign(post, updates);
 
-  Object.assign(post, updates);
+    await post.save();
 
-  await post.save();
-
-  res.json({
-
-    message: 'Post actualizado',
-    post
-  });
+    res.json({
+      message: 'Post actualizado',
+      post
+    });
 });
 exports.deletePost = catchAsync(async (req, res) => {
+    const post = req.post;
 
-  const post = req.post;
+    await Comment.deleteMany({
+      post: post._id
+    });
 
-  await Comment.deleteMany({
-    post: post._id
-  });
+    await post.deleteOne();
 
-  await post.deleteOne();
-
-  res.json({
-    message: 'Post eliminado'
-  });
+    res.json({
+      message: 'Post eliminado'
+    });
 });
+
 exports.toggleLikePost = catchAsync(async (req, res, next) => {
+    const post = await Post.findById(req.params.id);
 
-  const post = await Post.findById(req.params.id);
+    if (!post) {
+      return next(
+        new AppError(
+          'Post no encontrado',
+          404
+        ));
+    }
 
-  if (!post) {
-    return next(
-      new AppError('Post no encontrado', 404)
-    );
-  }
+    const userId = req.user.id;
 
-  const userId = req.user.id;
+    const alreadyLiked =
+      post.likes.some(
+        user => user.toString() === userId
+      );
 
-  const alreadyLiked = post.likes.some(
-    user => user.toString() === userId
-  );
+    if (alreadyLiked) {
 
-  if (alreadyLiked) {
+      post.likes =
+        post.likes.filter(
+          user =>
+            user.toString() !== userId
+        );
 
-    post.likes = post.likes.filter(
-      user => user.toString() !== userId
-    );
+    } else {
+      post.likes.push(userId);
+    }
 
-  } else {
+    await post.save();
 
-    post.likes.push(userId);
-  }
+    res.json({
+      message: alreadyLiked
+        ? 'Like removido'
+        : 'Like agregado',
 
-  await post.save();
+      totalLikes: post.likes.length,
 
-  res.json({
+      liked: !alreadyLiked
+    });
+});
 
-    message: alreadyLiked
-      ? 'Like removido'
-      : 'Like agregado',
+exports.approvePost = catchAsync(async (req, res, next) => {
+    const post = await Post.findById(req.params.id);
 
-    totalLikes: post.likes.length,
+    if (!post) {
+      return next(
+        new AppError(
+          'Post no encontrado',
+          404
+        ));
+    }
 
-    liked: !alreadyLiked
-  });
+    post.status = 'approved';
+
+    await post.save();
+
+    res.json({
+      message: 'Post aprobado',
+      post
+    });
+});
+exports.rejectPost = catchAsync(async (req, res, next) => {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return next(
+        new AppError(
+          'Post no encontrado',
+          404
+        ));
+    }
+
+    post.status = 'rejected';
+
+    await post.save();
+
+    res.json({
+      message: 'Post rechazado',
+      post
+    });
+});
+
+exports.getPendingPosts = catchAsync(async (req, res) => {
+    const posts = await Post.find({ status: 'pending'})
+
+        .populate(
+          'user',
+          'username name'
+        )
+
+        .populate(
+          'place',
+          'name'
+        )
+
+        .populate(
+          'category',
+          'name'
+        )
+
+        .sort({ createdAt: -1 });
+    res.json(posts);
 });
