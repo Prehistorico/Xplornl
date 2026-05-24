@@ -4,9 +4,9 @@ const router = express.Router();
 const validateObjectId =
   require('../validators/validateObjectId');
 const {
-  protect,
-  admin
-} = require('../middlewares/authMiddleware');
+  authUser,
+  authAdmin
+} = require('../middleware/authMiddleware');
 const validatePlace =
   require('../validators/validatePlace');
 const sanitizePlace =
@@ -24,16 +24,16 @@ router.get('/:id', validateObjectId(), getPlaceById);
 
 router.post(
   '/',
-  protect,
-  admin,
+  authUser,
+  authAdmin,
   sanitizePlace,
   validatePlace,
   createPlace
 );
 router.patch(
   '/:id',
-  protect,
-  admin,
+  authUser,
+  authAdmin,
   validateObjectId(),
   sanitizePlace,
   validatePlace,
@@ -41,8 +41,8 @@ router.patch(
 );
 router.delete(
   '/:id',
-  protect,
-  admin,
+  authUser,
+  authAdmin,
   validateObjectId(),
   deletePlace
 );

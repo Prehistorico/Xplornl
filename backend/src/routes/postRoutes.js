@@ -6,11 +6,11 @@ const Post =
 const validateObjectId =
   require('../validators/validateObjectId');
 const checkOwnership =
-  require('../middlewares/checkOwnership');
+  require('../middleware/checkOwnership');
 const {
-  protect, 
-  admin
-} = require('../middlewares/authMiddleware');
+  authUser, 
+  authAdmin
+} = require('../middleware/authMiddleware');
 const {
   validateCreatePost,
   validateUpdatePost
@@ -29,13 +29,13 @@ const {
 
 
 router.get('/', getPosts);
-router.get('/pending', protect, admin, getPendingPosts);
+router.get('/pending', authUser, authAdmin, getPendingPosts);
 router.get('/:id', validateObjectId(), getPostById);
 
-router.post('/', protect, validateCreatePost, createPost);
+router.post('/', authUser, validateCreatePost, createPost);
 router.patch(
 '/:id',
-  protect,
+  authUser,
   validateObjectId(),
   checkOwnership({
     model: Post,
@@ -47,7 +47,7 @@ router.patch(
 );
 router.delete(
   '/:id',
-  protect,
+  authUser,
   validateObjectId(),
   checkOwnership({
     model: Post,
@@ -58,9 +58,9 @@ router.delete(
 );
 
 
-router.patch('/:id/approve', protect, admin, validateObjectId(), approvePost);
-router.patch('/:id/reject', protect, admin, validateObjectId(), rejectPost);
+router.patch('/:id/approve', authUser, authAdmin, validateObjectId(), approvePost);
+router.patch('/:id/reject', authUser, authAdmin, validateObjectId(), rejectPost);
 
-router.patch('/:id/like', protect, validateObjectId(),  toggleLikePost);
+router.patch('/:id/like', authUser, validateObjectId(),  toggleLikePost);
 
 module.exports = router;

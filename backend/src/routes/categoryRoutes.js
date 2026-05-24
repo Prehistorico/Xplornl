@@ -4,9 +4,9 @@ const router = express.Router();
 const validateObjectId =
   require('../validators/validateObjectId');
 const {
-  protect,
-  admin
-} = require('../middlewares/authMiddleware');
+  authUser,
+  authAdmin
+} = require('../middleware/authMiddleware');
 const {
   validateCreateCategory,
   validateUpdateCategory
@@ -23,8 +23,8 @@ const {
 router.get('/', getCategories);
 router.get('/:id', validateObjectId(), getCategoryById);
 
-router.post('/', protect, admin, validateCreateCategory, createCategory);
-router.patch('/:id', protect, admin, validateObjectId(), validateUpdateCategory, updateCategory);
-router.delete('/:id', protect, admin, validateObjectId(), deleteCategory);
+router.post('/', authUser, authAdmin, validateCreateCategory, createCategory);
+router.patch('/:id', authUser, authAdmin, validateObjectId(), validateUpdateCategory, updateCategory);
+router.delete('/:id', authUser, authAdmin, validateObjectId(), deleteCategory);
 
 module.exports = router;

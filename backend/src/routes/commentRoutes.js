@@ -6,11 +6,11 @@ const Comment =
 const validateObjectId =
   require('../validators/validateObjectId');
 const checkOwnership =
-  require('../middlewares/checkOwnership');
+  require('../middleware/checkOwnership');
 const {
-  protect,
-  admin
-} = require('../middlewares/authMiddleware');
+  authUser,
+  authAdmin
+} = require('../middleware/authMiddleware');
 const {
   validateCreateComment,
   validateUpdateComment
@@ -29,14 +29,14 @@ const {
 } = require('../controllers/commentController');
 
 router.get('/', getComments);
-router.get('/pending', protect, admin, getPendingComments);
+router.get('/pending', authUser, authAdmin, getPendingComments);
 router.get('/post/:postId', validateObjectId('postId'), getCommentsByPost);
 router.get('/:id', validateObjectId(), getCommentById);
 
-router.post('/', protect, validateCreateComment, createComment);
+router.post('/', authUser, validateCreateComment, createComment);
 router.patch(
   '/:id',
-  protect,
+  authUser,
   validateObjectId(),
   checkOwnership({
     model: Comment,
@@ -48,7 +48,7 @@ router.patch(
 );
 router.delete(
   '/:id',
-  protect,
+  authUser,
   validateObjectId(),
   checkOwnership({
     model: Comment,
@@ -58,9 +58,9 @@ router.delete(
   deleteComment
 );
 
-router.patch('/:id/approve', protect, admin, validateObjectId(), approveComment);
-router.patch('/:id/reject', protect, admin, validateObjectId(), rejectComment);
+router.patch('/:id/approve', authUser, authAdmin, validateObjectId(), approveComment);
+router.patch('/:id/reject', authUser, authAdmin, validateObjectId(), rejectComment);
 
-router.patch('/:id/like', protect, validateObjectId(), toggleLikeComment);
+router.patch('/:id/like', authUser, validateObjectId(), toggleLikeComment);
 
 module.exports = router;

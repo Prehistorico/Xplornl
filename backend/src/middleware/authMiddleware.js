@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const AppError = require('../utils/appError');
 
-const protect = (req, res, next) => {
+const authUser = (req, res, next) => {
   try {
     const authHeader =
       req.headers.authorization;
@@ -34,23 +34,18 @@ const protect = (req, res, next) => {
 
     return next(
       new AppError(
-        'Token inválido o expirado',
-        401
-      )
+        'Token inválido o expirado', 401)
     );
   }
 };
 
-const admin = (req, res, next) => {
+const authAdmin = (req, res, next) => {
   if (req.user.role !== 'admin') {
     return next(
-      new AppError(
-        'Acceso denegado',
-        403
-      )
+      new AppError('Acceso denegado', 403)
     );
   }
   next();
 };
 
-module.exports = { protect, admin};
+module.exports = { authUser, authAdmin};

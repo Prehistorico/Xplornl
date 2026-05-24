@@ -5,11 +5,11 @@ const Review = require('../models/Review');
 const validateObjectId =
   require('../validators/validateObjectId');
 const checkOwnership =
-  require('../middlewares/checkOwnership');
+  require('../middleware/checkOwnership');
 const {
-  protect,
-  admin
-} = require('../middlewares/authMiddleware');
+  authUser,
+  authAdmin
+} = require('../middleware/authMiddleware');
 const {
   validateCreateReview,
   validateUpdateReview
@@ -27,14 +27,14 @@ const {
 } = require('../controllers/reviewController');
 
 router.get('/', getReviews);
-router.get('/pending', protect, admin, getPendingReviews);
+router.get('/pending', authUser, authAdmin, getPendingReviews);
 router.get('/place/:placeId', validateObjectId('placeId'), getReviewsByPlace);
 router.get('/:id', validateObjectId(), getReviewById);
 
-router.post('/', protect, validateCreateReview, createReview);
+router.post('/', authUser, validateCreateReview, createReview);
 router.patch(
   '/:id',
-  protect,
+  authUser,
   validateObjectId(),
   checkOwnership({
     model: Review,
@@ -46,7 +46,7 @@ router.patch(
 );
 router.delete(
   '/:id',
-  protect,
+  authUser,
   validateObjectId(),
   checkOwnership({
     model: Review,
@@ -57,7 +57,7 @@ router.delete(
 );
 
 
-router.patch('/:id/approve', protect, admin, validateObjectId(), approveReview);
-router.patch('/:id/reject', protect, admin, validateObjectId(), rejectReview);
+router.patch('/:id/approve', authUser, authAdmin, validateObjectId(), approveReview);
+router.patch('/:id/reject', authUser, authauthAdmin, validateObjectId(), rejectReview);
 
 module.exports = router;

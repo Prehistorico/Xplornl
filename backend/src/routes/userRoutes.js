@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
 
-const validateObjectId =
-  require('../validators/validateObjectId');
+const validateObjectId = require('../validators/validateObjectId');
 const {
-  protect,
-  admin
-} = require('../middlewares/authMiddleware');
+  authUser,
+  authAdmin
+} = require('../middleware/authMiddleware');
 const validateUser =
   require('../validators/validateUser');
 const {
@@ -16,10 +15,10 @@ const {
   deleteUser
 } = require('../controllers/userController');
 
-router.get('/', protect, admin, getUsers);
-router.get('/:id', protect, validateObjectId(), getUserById);
+router.get('/', authUser, authAdmin, getUsers);
+router.get('/:id', authUser, validateObjectId(), getUserById);
 
-router.patch('/:id', protect, validateObjectId(), validateUser, updateUser);
-router.delete('/:id', protect, validateObjectId(), deleteUser);
+router.patch('/:id', authUser, validateObjectId(), validateUser, updateUser);
+router.delete('/:id', authUser, validateObjectId(), deleteUser);
 
 module.exports = router;
