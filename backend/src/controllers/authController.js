@@ -90,7 +90,9 @@ exports.login = catchAsync(async (req, res,next) => {
     user: {
       id: user._id,
       username: user.username,
+      name: user.name,
       email: user.email,
+      birthdate: user.birthdate,
       role: user.role
     },
 

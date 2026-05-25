@@ -1,52 +1,47 @@
 import "../styles/community.css";
-import { useState } from "react";
-import NewPost from "../components/posts-components/CreatePostModal/CreatePostModal";
+import { useState, useEffect } from "react";
+import NewPost from "../components/posts-components/Post/CreatePost";
 import Post from "../components/posts-components/Post/Post";
 import CommentModal from "../components/posts-components/CommentModal/CommentModal";
+import { getPosts } from "../services/postService";
 
 export default function Community() {
-  
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      name: "Kang Yeosang",
-      time: "10 días",
-      title: "Lorem ipsum dolor sit amet",
-      description: "Lorem ipsum dolor sit amet...",
-      place: "Chipinque",
-      category: "Parque ecológico",
-      likes: 3,
-      comments: [
-        {
-          id: 1,
-          user: "Jeong Yunho",
-          time: "1 semana",
-          text: "Lorem ipsum dolor sit amet",
-          likes: 0,
-          image: null
-        }
-      ],
-      image: true
-    }
-  ]);
-
+  const [posts, setPosts]           = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState('');
 
-  const addPost = (newPost) => {
-    setPosts([newPost, ...posts]);
+  const loadPosts = async () => {
+    try {
+      setLoading(true);
+      const data = await getPosts();
+      setPosts(data.posts || []);
+    } catch (err) {
+      setError('No se pudieron cargar las publicaciones.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => { loadPosts(); }, []);
+
+  const handlePostCreated = () => { loadPosts(); };
 
   return (
     <div className="community-section">
       <div className="community-page">
 
-        <NewPost onAddPost={addPost} />
+        <NewPost onPostCreated={handlePostCreated} />
 
-        {posts.map((post) => (
+        {loading && <p style={{ color: '#b0a090', textAlign: 'center' }}>Cargando publicaciones...</p>}
+        {error   && <p style={{ color: '#ff6b6b', textAlign: 'center' }}>{error}</p>}
+
+        {!loading && posts.map((post) => (
           <Post
-            key={post.id}
+            key={post._id}
             post={post}
             onOpenComments={() => setSelectedPost(post)}
+            onLikeToggle={loadPosts}
           />
         ))}
 
@@ -56,6 +51,7 @@ export default function Community() {
         <CommentModal
           post={selectedPost}
           onClose={() => setSelectedPost(null)}
+          onCommentAdded={loadPosts}
         />
       )}
     </div>

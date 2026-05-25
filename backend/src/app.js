@@ -27,7 +27,7 @@ app.use((req, res, next) => {
 app.use('/api', limiter);
 app.use('/api/auth', require('./routes/authRoutes'));
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.use('/api/users', authUser, require('./routes/userRoutes'));
 app.use('/api/places', authUser, require('./routes/placeRoutes'));
