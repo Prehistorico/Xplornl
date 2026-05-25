@@ -12,16 +12,16 @@
 }
 
 .score {
-  color: #ff6d0f;
+  color: var(--principal-color);
   font-weight: bold;
 }
 
 .see-more {
   margin-top: 20px;
-  border: 1px solid #ff6d0f;
+  border: 1px solid var(--principal-color);
   background: none;
   padding: 10px 20px;
-  border-radius: 25px;
+  border-radius: var(--radius-pill);
 }
 
 .reviews-container {
@@ -34,9 +34,9 @@
 }
 
 .review-card {
-  background: white;
+  background: var(--bkg-card);
   padding: 20px;
-  border-radius: 15px;
+  border-radius: var(--radius-md);
   width: 300px;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .stars {
-  color: #ff6d0f;
+  color: var(--principal-color);
 }
 
 .review-user {
@@ -69,13 +69,12 @@
 }
 
 .add-review {
-  background: #ff6d0f;
-  color: white;
+  background: var(--principal-color);
+  color: var(--bkg-light);
   padding: 12px 25px;
-  border-radius: 25px;
+  border-radius: var(--radius-pill);
   border: none;
 }
-
 
 @media (max-width: 1024px) {
   .reviews-section {
