@@ -1,94 +1,73 @@
 const Category = require('../models/Category');
 
-const { isNonEmptyString } = require('../utils/validators');
-const appError = require('../utils/appError');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.createCategory = async (req, res, next) => {
-  try {
-    const { name } = req.body;
-
-    if (!isNonEmptyString(name, 3)) {
-      return res.status(400).json({ message: 'Nombre inválido (mínimo 3 caracteres)' });
-    }
-
-    const category = new Category({
-      name: name.trim()
-    });
-
-    await category.save();
+exports.createCategory = catchAsync(async (req, res) => {
+    const category = await Category.create({name: req.body.name});
 
     res.status(201).json({
       message: 'Categoría creada',
       category
     });
+});
+exports.getCategories = catchAsync(async (req, res) => {
 
-  } catch (error) {
-    if (error.code === 11000) {
-      return res.status(400).json({ message: 'La categoría ya existe' });
-    }
+    const categories =
+      await Category.find()
 
-   next(error);
-  }
-};
-exports.getCategories = async (req, res, next) => {
-  try {
-    const categories = await Category.find();
+        .sort({ name: 1 });
 
     res.json(categories);
-
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getCategoryById = async (req, res, next) => {
-  try {
-    const category = await Category.findById(req.params.id);
+});
+exports.getCategoryById = catchAsync(async (req, res, next) => {
+    const category =
+      await Category.findById(req.params.id);
 
     if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return next(
+        new AppError('Categoría no encontrada', 404));
     }
 
     res.json(category);
-
-  } catch (error) {
-    next(error);
-  }
-};
-exports.updateCategory = async (req, res, next) => {
-  try {
-    const { name } = req.body;
-
-    if (name && !isNonEmptyString(name, 3)) {
-      return res.status(400).json({ message: 'Nombre inválido' });
-    }
-
-    const category = await Category.findByIdAndUpdate(
-      req.params.id,
-      { name: name?.trim() },
-      { new: true }
-    );
+});
+exports.updateCategory = catchAsync(async (req, res, next) => {
+    const category = await Category.findById(req.params.id);
 
     if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return next(
+        new AppError(
+          'Categoría no encontrada',
+          404
+        ));
     }
 
-    res.json({ message: 'Categoría actualizada', category });
+    if (req.body.name !== undefined) {
+      category.name = req.body.name;
+    }
 
-  } catch (error) {
-    next(error);
-  }
-};
-exports.deleteCategory = async (req, res, next) => {
-  try {
-    const category = await Category.findByIdAndDelete(req.params.id);
+    await category.save();
+
+    res.json({
+      message: 'Categoría actualizada',
+      category
+    });
+});
+exports.deleteCategory = catchAsync(async (req, res, next) => {
+    const category = await Category.findById(req.params.id);
 
     if (!category) {
-      return res.status(404).json({ message: 'Categoría no encontrada' });
+      return next(
+        new AppError(
+          'Categoría no encontrada',
+          404
+        )
+      );
     }
 
-    res.json({ message: 'Categoría eliminada' });
+    await category.deleteOne();
 
-  } catch (error) {
-    next(error);
-  }
-};
+    res.json({
+      message: 'Categoría eliminada'
+    });
+});

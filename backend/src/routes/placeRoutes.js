@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const roleMiddleware = require('../middleware/roleMiddleware');
-
+const validateObjectId = require('../validators/validateObjectId');
+const {authAdmin} = require('../middleware/authMiddleware');
+const validatePlace = require('../validators/validatePlace');
 const {
   createPlace,
   getPlaces,
@@ -12,10 +13,26 @@ const {
 } = require('../controllers/placeController');
 
 router.get('/', getPlaces);
-router.get('/:id', getPlaceById);
+router.get('/:id', validateObjectId(), getPlaceById);
 
-router.post('/', roleMiddleware('admin'), createPlace);
-router.put('/:id', roleMiddleware('admin'), updatePlace);
-router.delete('/:id', roleMiddleware('admin'), deletePlace);
+router.post(
+  '/',
+  authAdmin,
+  validatePlace,
+  createPlace
+);
+router.patch(
+  '/:id',
+  authAdmin,
+  validateObjectId(),
+  validatePlace,
+  updatePlace
+);
+router.delete(
+  '/:id',
+  authAdmin,
+  validateObjectId(),
+  deletePlace
+);
 
 module.exports = router;

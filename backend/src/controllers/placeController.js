@@ -1,119 +1,90 @@
 const Place = require('../models/Place');
-const Category = require('../models/Category');
 
-const { isNonEmptyString, isValidObjectId } = require('../utils/validators');
-const appError = require('../utils/appError');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
+const pickFields = require('../utils/pickFields');
 
-exports.createPlace = async (req, res, next) => {
-  try {
-    const { name, category, location } = req.body;
+exports.createPlace = catchAsync(async (req, res) => {
+    const placeData = pickFields(req.body, [
+      'name',
+      'description',
+      'category',
+      'zone',
+      'location',
+      'schedule',
+      'contact',
+      'details',
+      'transport'
+    ]);
 
-    if (!isNonEmptyString(name, 3)) {
-      return res.status(400).json({ message: 'Nombre inválido' });
-    }
-
-    if (category) {
-      if (!isValidObjectId(category)) {
-        return res.status(400).json({ message: 'Category ID inválido' });
-      }
-
-      const categoryExists = await Category.findById(category);
-      if (!categoryExists) {
-        return res.status(404).json({ message: 'Categoría no existe' });
-      }
-    }
-
-    if (location?.coordinates) {
-      const { lat, lng } = location.coordinates;
-
-      if (
-        typeof lat !== 'number' ||
-        typeof lng !== 'number'
-      ) {
-        return res.status(400).json({ message: 'Coordenadas inválidas' });
-      }
-    }
-
-    const place = new Place(req.body);
-
-    await place.save();
+    const place = await Place.create(placeData);
 
     res.status(201).json({
       message: 'Lugar creado',
       place
     });
-
-  } catch (error) {
-     next(error);
-  }
-};
-exports.getPlaces = async (req, res, next) => {
-  try {
+});
+exports.getPlaces = catchAsync(async (req, res) => {
     const places = await Place.find()
-      .populate('category', 'name');
+    .select('_id name description category zone')
+    .populate('category', 'name')
+    .sort({ createdAt: -1 });
 
     res.json(places);
-
-  } catch (error) {
-       next(error);
-  }
-};
-exports.getPlaceById = async (req, res, next) => {
-  try {
+});
+exports.getPlaceById = catchAsync(async (req, res, next) => {
     const place = await Place.findById(req.params.id)
-      .populate('category', 'name');
+    .populate('category', 'name');
 
     if (!place) {
-      return res.status(404).json({ message: 'Lugar no encontrado' });
+      return next(
+        new AppError( 'Lugar no encontrado', 404));
     }
 
     res.json(place);
-
-  } catch (error) {
-    next(error);
-  }
-};
-exports.updatePlace = async (req, res, next) => {
-  try {
-    const updates = req.body;
-
-    if (updates.name && !isNonEmptyString(updates.name, 3)) {
-      return res.status(400).json({ message: 'Nombre inválido' });
-    }
-
-    if (updates.category) {
-      if (!isValidObjectId(updates.category)) {
-        return res.status(400).json({ message: 'Category inválido' });
-      }
-    }
+});
+exports.updatePlace = catchAsync(async (req, res, next) => {
+    const updates = pickFields(req.body, [
+      'name',
+      'description',
+      'category',
+      'zone',
+      'location',
+      'schedule',
+      'contact',
+      'details',
+      'transport'
+    ]);
 
     const place = await Place.findByIdAndUpdate(
-      req.params.id,
+      req.params.id, 
       updates,
-      { new: true }
-    );
+        {new: true,
+        runValidators: true}
+      )
+
+        .populate('category', 'name');
 
     if (!place) {
-      return res.status(404).json({ message: 'Lugar no encontrado' });
-    }
+      return next(
+        new AppError('Lugar no encontrado', 404));}
 
-    res.json({ message: 'Lugar actualizado', place });
-
-  } catch (error) {
-     next(error);
-  }
-};
-exports.deletePlace = async (req, res, next) => {
-  try {
-    const place = await Place.findByIdAndDelete(req.params.id);
+    res.json({
+      message: 'Lugar actualizado',
+      place
+    });
+});
+exports.deletePlace = catchAsync(async (req, res, next) => {
+    const place = await Place.findById(req.params.id);
 
     if (!place) {
-      return res.status(404).json({ message: 'Lugar no encontrado' });
+      return next(
+        new AppError('Lugar no encontrado', 404));
     }
 
-    res.json({ message: 'Lugar eliminado' });
+    await place.deleteOne();
 
-  } catch (error) {
-     next(error);
-  }
-};
+    res.json({
+      message: 'Lugar eliminado'
+    });
+});

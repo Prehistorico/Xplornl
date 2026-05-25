@@ -1,94 +1,86 @@
 const Comment = require('../models/Comment');
+const Post = require('../models/Post');
 
-const appError = require('../utils/appError');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.createComment = async (req, res, next) => {
-  try {
-    const { post, description } = req.body;
+exports.createComment = catchAsync(async (req, res, next) => {
+  const {post, description} = req.body;
+  const postExists = await Post.findById(post);
 
-    if (!post || !description) {
-      return res.status(400).json({
-        message: 'Post y descripción son obligatorios'
-      });
+  if (!postExists) {
+    return next(
+      new AppError('Post no encontrado', 404));
+  }
+
+  const comment = await Comment.create({
+    post,
+    description,
+    user: req.user.id
+  });
+
+  res.status(201).json({
+    message: 'Comentario creado',
+    comment
+  });
+});
+exports.getComments = catchAsync(async (req, res) => {
+  const filter = {};
+
+  if (req.user?.role !== 'admin') {
+    filter.status = 'approved';
+  }
+
+  const comments = await Comment.find(filter)
+    .populate('user', 'username')
+    .populate('post', 'title')
+
+    .sort({ createdAt: -1 });
+
+  res.json(comments);
+});
+exports.getCommentsByPost = catchAsync(async (req, res) => {
+    const filter = {
+      post: req.params.postId
+    };
+
+    if (req.user?.role !== 'admin') {
+      filter.status = 'approved';
     }
 
-    const comment = new Comment({
-      post,
-      description,
-      user: req.user.id
-    });
-
-    await comment.save();
-
-    res.status(201).json({
-      message: 'Comentario creado',
-      comment
-    });
-
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-};
-exports.getComments = async (req, res, next) => {
-  try {
-    const comments = await Comment.find()
-      .populate('user', 'username')
-      .populate('post', 'title')
-      .sort({ createdAt: -1 });
-
-    res.json(comments);
-
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getCommentsByPost = async (req, res, next) => {
-  try {
-    const comments = await Comment.find({ post: req.params.postId })
+    const comments = await Comment.find(filter)
       .populate('user', 'username')
       .sort({ createdAt: -1 });
 
     res.json(comments);
-
-  } catch (error) {
-     next(error);
-  }
-};
-exports.getCommentById = async (req, res, next) => {
-  try {
+});
+exports.getCommentById = catchAsync(async (req, res, next) => {
     const comment = await Comment.findById(req.params.id)
-      .populate('user', 'username')
-      .populate('post', 'title');
+
+        .populate('user', 'username')
+        .populate('post', 'title');
 
     if (!comment) {
-      return res.status(404).json({ message: 'Comentario no encontrado' });
+      return next(
+        new AppError('Comentario no encontrado', 404));
+    }
+
+    if (
+      comment.status !== 'approved' &&
+      req.user?.role !== 'admin'
+    ) {
+      return next(
+        new AppError('Comentario no encontrado',404));
     }
 
     res.json(comment);
+});
+exports.updateComment = catchAsync(async (req, res) => {
+    const comment = req.comment;
 
-  } catch (error) {
-    next(error);
-  }
-};
-exports.updateComment = async (req, res, next) => {
-  try {
-    const comment = await Comment.findById(req.params.id);
-
-    if (!comment) {
-      return res.status(404).json({ message: 'Comentario no encontrado' });
-    }
-
-    if (comment.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'No autorizado' });
-    }
-
-    const { description, status } = req.body;
-
-    if (description) comment.description = description;
-
-    if (status && req.user.role === 'admin') {
-      comment.status = status;
+    if (req.body.description !== undefined) {
+      comment.description =
+        req.body.description;
     }
 
     await comment.save();
@@ -97,28 +89,97 @@ exports.updateComment = async (req, res, next) => {
       message: 'Comentario actualizado',
       comment
     });
+});
+exports.deleteComment =catchAsync(async (req, res) => {
+    await req.comment.deleteOne();
 
-  } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar comentario' });
-  }
-};
-exports.deleteComment = async (req, res, next) => {
-  try {
+    res.json({
+      message: 'Comentario eliminado'
+    });
+});
+
+
+exports.toggleLikeComment = catchAsync(async (req, res, next) => {
     const comment = await Comment.findById(req.params.id);
 
     if (!comment) {
-      return res.status(404).json({ message: 'Comentario no encontrado' });
+      return next(
+        new AppError('Comentario no encontrado', 404));
     }
 
-    if (comment.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'No autorizado' });
+    const userId = req.user.id;
+
+    const alreadyLiked =
+      comment.likes.users.some(
+        user => user.toString() === userId
+      );
+
+    if (alreadyLiked) {
+
+      comment.likes.users =
+        comment.likes.users.filter(
+          user =>
+            user.toString() !== userId
+        );
+
+    } else {
+      comment.likes.users.push(userId);
     }
 
-    await comment.deleteOne();
+    comment.likes.count = comment.likes.users.length;
 
-    res.json({ message: 'Comentario eliminado' });
+    await comment.save();
 
-  } catch (error) {
-    next(error);
-  }
-};
+    res.json({
+
+      message: alreadyLiked
+        ? 'Like removido'
+        : 'Like agregado',
+
+      totalLikes: comment.likes.count,
+      liked: !alreadyLiked
+    });
+});
+
+exports.approveComment = catchAsync(async (req, res, next) => {
+    const comment = await Comment.findById(req.params.id);
+
+    if (!comment) {
+      return next(
+        new AppError('Comentario no encontrado',404));
+    }
+
+    comment.status = 'approved';
+
+    await comment.save();
+
+    res.json({
+      message: 'Comentario aprobado',
+      comment
+    });
+});
+exports.rejectComment = catchAsync(async (req, res, next) => {
+    const comment = await Comment.findById(req.params.id);
+
+    if (!comment) {
+      return next(
+        new AppError('Comentario no encontrado', 404));
+    }
+
+    comment.status = 'rejected';
+
+    await comment.save();
+
+    res.json({
+      message: 'Comentario rechazado',
+      comment
+    });
+});
+
+exports.getPendingComments = catchAsync(async (req, res) => {
+    const comments = await Comment.find({status: 'pending'})
+        .populate('user', 'username')
+        .populate('post', 'title')
+        .sort({ createdAt: -1 });
+    res.json(comments);
+});

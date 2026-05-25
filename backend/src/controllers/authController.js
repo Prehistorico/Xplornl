@@ -1,124 +1,119 @@
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const sendEmail = require('../utils/sendEmail');
 
-const appError = require('../utils/appError');
+const User = require('../models/User');
 
-exports.register = async (req, res, next) => {
-  try {
-    const { username, name, birthdate, email, password } = req.body;
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
+const pickFields = require('../utils/pickFields');
 
-    const existingUsername = await User.findOne({ username });
-    if (existingUsername) {
-       return next(new appError('El nombre de usuario ya está registrado', 400));
-    }
+const {
+  generateToken,
+  generateEmailToken,
+  hashToken
+} = require('../services/authService');
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return next(new appError('El correo ya está registrado', 400));
-    }
+const {sendVerificationEmail} = require('../services/emailService');
 
-    const emailToken = crypto.randomBytes(32).toString('hex');
-    const emailTokenHash = crypto.createHash('sha256').update(emailToken).digest('hex');
+exports.register = catchAsync(async (req, res, next) => {
+  const {username, email} = req.body;
+  const existingUsername =await User.findOne({username});
 
-    const newUser = new User({
-      username,
-      name,
-      birthdate,
-      email,
+  if (existingUsername) {
+    return next(
+      new AppError('El nombre de usuario ya está registrado', 400));
+  }
+
+  const existingUser = await User.findOne({email});
+
+  if (existingUser) {
+    return next(
+      new AppError('El correo ya está registrado',400));
+  }
+
+  const {rawToken, hashedToken} = generateEmailToken();
+
+  const user = await User.create({
+    ...pickFields(req.body, [
+      'username',
+      'name',
+      'birthdate',
+      'email',
+      'password'
+    ]),
+    emailToken: hashedToken
+  });
+
+  await sendVerificationEmail(user.email, rawToken);
+
+  res.status(201).json({
+    message:
+      'Usuario registrado. Revisa tu correo para verificar tu cuenta'
+  });
+});
+exports.login = catchAsync(async (req, res,next) => {
+  const {email, password} = req.body;
+
+  if (!email || !password) {
+    return next(
+      new AppError('Todos los campos son obligatorios', 400));
+  }
+
+  const user = await User.findOne({email}) .select('+password');
+
+  if (!user) {
+    return next(
+      new AppError('Usuario inválido', 400));
+  }
+
+  const isMatch =
+    await bcrypt.compare(
       password,
-      emailToken: emailTokenHash
-    });
-
-    await newUser.save();
-
-    const verifyURL = `http://localhost:5000/api/verify/${emailToken}`;
-
-    await sendEmail(
-      email,
-      'Verifica tu cuenta',
-      `<h1>Verificación</h1>
-      <p>Haz click:</p>
-      <a href="${verifyURL}">${verifyURL}</a>`
+      user.password
     );
 
-    res.status(201).json({
-      message: 'Usuario registrado. Revisa tu correo para verificar tu cuenta'
-    });
-
-  } catch (error) {
-    next(error);
+  if (!isMatch) {
+    return next(
+      new AppError('Contraseña inválida', 400));
   }
-};
-exports.login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
 
-    if (!email || !password) {
-       return next(new appError('Todos los campos son obligatorios', 400));
-    }
-
-    const user = await User.findOne({ email }).select('+password');
-
-    if (!user) {
-      return next(new appError('Usuario inválido.', 400));
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return next(new appError('Contraseña inválida', 400));
-    }
-
-    if (!user.isVerified) {
-      return next(new appError('Debes verificar tu correo antes de iniciar sesión', 403));
-    }
-
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    res.json({
-      message: 'Login exitoso',
-      user: {
-        id: user._id,
-        username: user.username,
-        email: user.email
-      },
-      token
-    });
-
-  } catch (error) {
-    next(error);
+  if (!user.isVerified) {
+    return next(
+      new AppError('Debes verificar tu correo antes de iniciar sesión', 403));
   }
-};
-exports.verifyEmail = async (req, res, next) => {
-  try {
-    const { token } = req.params;
 
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+  const token = generateToken(user);
 
-    const user = await User.findOne({ emailToken: hashedToken });
+  res.json({
 
-    if (!user) {
-       return next(new appError('Token inválido', 400 ));
-    }
+    message: 'Login exitoso',
 
-    user.isVerified = true;
-    user.emailToken = undefined;
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role
+    },
 
-    await user.save();
+    token
+  });
+});
+exports.verifyEmail = catchAsync(async (req, res, next) => {
+  const hashedToken = hashToken(req.params.token);
 
-    res.json({ message: 'Cuenta verificada correctamente' });
+  const user = await User.findOne({emailToken: hashedToken});
 
-  } catch (error) {
-    next(error);
+  if (!user) {
+    return next(
+      new AppError('Token inválido', 400));
   }
-};
+
+  user.isVerified = true;
+  user.emailToken = undefined;
+
+  await user.save();
+
+  res.json({
+    message:
+      'Cuenta verificada correctamente'
+  });
+});

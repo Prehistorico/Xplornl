@@ -1,141 +1,137 @@
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
-const Place = require('../models/Place');
-const Category = require('../models/Category');
 
-const { isNonEmptyString, isValidObjectId } = require('../utils/validators');
-const appError = require('../utils/appError');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
 
-exports.createPost = async (req, res, next) => {
-  try {
-    const { title, description, tags } = req.body;
+const pickFields = require('../utils/pickFields');
+const containsBannedWords = require('../utils/containsBannedWords');
 
-    if (!isNonEmptyString(title, 3)) {
-      return next(new AppError('Título inválido', 400));
-    }
+exports.createPost = catchAsync(async (req, res) => {
+  const imagePaths =req.files?.map(file => `/uploads/posts/${file.filename}`) || [];
 
-    if (description && !isNonEmptyString(description, 5)) {
-      return next(new AppError('Descripción inválida', 400));
-    }
+  const post = await Post.create({
+    ...pickFields(req.body, [
+      'title',
+      'description',
+      'place',
+      'category'
+    ]),
+    images: imagePaths,
+    user: req.user.id
+  });
 
-    if (tags?.place) {
-      if (!isValidObjectId(tags.place)) {
-        return next(new AppError('Place inválido', 400));
-      }
+  res.status(201).json({
+    message: 'Post creado',
+    post
+  });
+});
+exports.getPosts = catchAsync(async (req, res) => {
+    const {search, category, place, status} = req.query;
 
-      const placeExists = await Place.findById(tags.place);
-      if (!placeExists) {
-        return next(new AppError('Place no existe', 404));
-      }
-    }
+    const filter = {};
 
-    if (tags?.category) {
-      if (!isValidObjectId(tags.category)) {
-        return next(new AppError('Category inválida', 400));
-      }
+    if (search) {filter.$text = {$search: search};}
+    if (category) {filter.category = category;}
+    if (place) {filter.place = place;}
 
-      const categoryExists = await Category.findById(tags.category);
-      if (!categoryExists) {
-        return next(new AppError('Category no existe', 404));
-      }
-    }
+    if (req.user?.role !== 'admin') {filter.status = 'approved';}
+    if (status && req.user?.role === 'admin'){filter.status = status;}
 
-    const post = await Post.create({
-      title: title.trim(),
-      description,
-      tags,
-      user: req.user.id
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10,1), 50);
+    const skip = (page - 1) * limit;
+
+    const totalPosts = await Post.countDocuments(filter);
+    const posts = await Post.find(filter)
+
+      .populate('user', 'username')
+      .populate('place', 'name')
+      .populate('category', 'name')
+
+      .sort({ createdAt: -1 })
+
+      .skip(skip)
+      .limit(limit)
+
+      .lean();
+
+    const postIds =
+      posts.map(post => post._id);
+
+    const commentCounts =
+      await Comment.aggregate([
+        {
+          $match: {
+            post: { $in: postIds },
+            status: 'approved'
+          }
+        },
+        {
+          $group: {
+            _id: '$post',
+            count: { $sum: 1 }}
+        }
+      ]);
+
+    const commentMap = {};
+
+    commentCounts.forEach(item => {commentMap[item._id.toString()] = item.count;});
+
+    const postsWithCounts = posts.map(post => ({
+        ...post,
+        totalComments: commentMap[post._id.toString()] || 0
+      }));
+
+    res.json({
+      currentPage: page,
+      totalPages:Math.ceil(totalPosts / limit),
+      totalPosts, posts: postsWithCounts
     });
+});
+exports.getPostById = catchAsync(async (req, res, next) => {
 
-    res.status(201).json({
-      message: 'Post creado',
-      post
-    });
-
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getPosts = async (req, res, next) => {
-  try {
-    const posts = await Post.find()
-      .populate('user', 'username name')
-      .populate('tags.place', 'name')
-      .populate('tags.category', 'name')
-      .sort({ createdAt: -1 });
-
-    const postsWithComments = await Promise.all(
-      posts.map(async (post) => {
-        const comments = await Comment.find({ post: post._id })
-          .populate('user', 'username')
-          .sort({ createdAt: -1 });
-
-        return {
-          ...post.toObject(),
-          comments
-        };
-      })
-    );
-
-    res.json(postsWithComments);
-
-  } catch (error) {
-    next(error);
-  }
-};
-exports.getPostById = async (req, res, next) => {
-  try {
     const post = await Post.findById(req.params.id)
-      .populate('user', 'username name')
-      .populate('tags.place', 'name description')
-      .populate('tags.category', 'name');
+        .populate('user', 'username')
+        .populate('place','name')
+        .populate('category', 'name');
 
     if (!post) {
-      return next(new AppError('Post no encontrado', 404));
+      return next(
+        new AppError('Post no encontrado', 404));
     }
 
-    const comments = await Comment.find({ post: req.params.id })
-      .populate('user', 'username')
-      .sort({ createdAt: -1 });
+    if (post.status !== 'approved' && req.user?.role !== 'admin'
+    ) {
+      return next(
+        new AppError('Post no encontrado', 404));
+    }
+
+    const comments = await Comment.find({
+        post: req.params.id,
+        status: 'approved'
+      })
+
+        .populate('user', 'username')
+        .sort({ createdAt: -1 });
 
     res.json({
       ...post.toObject(),
       comments
     });
+});
+exports.updatePost = catchAsync(async (req, res) => {
+    const post = req.post;
 
-  } catch (error) {
-    next(error);
-  }
-};
-exports.updatePost = async (req, res, next) => {
-  try {
-    const post = await Post.findById(req.params.id);
+    const updates = pickFields(req.body, [
+      'title',
+      'description',
+      'place',
+      'category',
+      'status'
+    ]);
 
-    if (!post) {
-      return next(new AppError('Post no encontrado', 404));
-    }
-
-    if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return next(new AppError('No autorizado', 403));
-    }
-
-    const { title, description, tags, status } = req.body;
-
-    if (title && !isNonEmptyString(title, 3)) {
-      return next(new AppError('Título inválido', 400));
-    }
-
-    if (tags?.place && !isValidObjectId(tags.place)) {
-      return next(new AppError('Place inválido', 400));
-    }
-
-    if (title) post.title = title;
-    if (description) post.description = description;
-    if (tags) post.tags = tags;
-
-    if (status && req.user.role === 'admin') {
-      post.status = status;
-    }
+    Object.assign(post, updates);
 
     await post.save();
 
@@ -143,29 +139,100 @@ exports.updatePost = async (req, res, next) => {
       message: 'Post actualizado',
       post
     });
+});
+exports.deletePost = catchAsync(async (req, res) => {
+    const post = req.post;
 
-  } catch (error) {
-    next(error);
-  }
-};
-exports.deletePost = async (req, res, next) => {
-  try {
-    const post = await Post.findById(req.params.id);
-
-    if (!post) {
-      return next(new AppError('Post no encontrado', 404));
-    }
-
-    if (post.user.toString() !== req.user.id && req.user.role !== 'admin') {
-      return next(new AppError('No autorizado', 403));
-    }
+    await Comment.deleteMany({
+      post: post._id
+    });
 
     await post.deleteOne();
 
-    res.json({ message: 'Post eliminado' });
+    res.json({
+      message: 'Post eliminado'
+    });
+});
 
-  } catch (error) {
-    next(error);
-  }
-};
+exports.toggleLikePost = catchAsync(async (req, res, next) => {
+    const post = await Post.findById(req.params.id);
 
+    if (!post) {
+      return next(
+        new AppError('Post no encontrado', 404));
+    }
+
+    const userId = req.user.id;
+
+    const alreadyLiked =
+      post.likes.some(
+        user => user.toString() === userId
+      );
+
+    if (alreadyLiked) {
+
+      post.likes =
+        post.likes.filter(
+          user =>
+            user.toString() !== userId
+        );
+
+    } else {
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    res.json({
+      message: alreadyLiked
+        ? 'Like removido'
+        : 'Like agregado',
+
+      totalLikes: post.likes.length,
+      liked: !alreadyLiked
+    });
+});
+
+exports.approvePost = catchAsync(async (req, res, next) => {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return next(
+        new AppError('Post no encontrado', 404));
+    }
+
+    post.status = 'approved';
+
+    await post.save();
+
+    res.json({
+      message: 'Post aprobado',
+      post
+    });
+});
+exports.rejectPost = catchAsync(async (req, res, next) => {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return next(
+        new AppError('Post no encontrado', 404));
+    }
+
+    post.status = 'rejected';
+
+    await post.save();
+
+    res.json({
+      message: 'Post rechazado',
+      post
+    });
+});
+
+exports.getPendingPosts = catchAsync(async (req, res) => {
+  const posts = await Post.find({ status: 'pending' })
+    .select('_id user status createdAt updatedAt') 
+    .populate('user', 'username name') 
+    .sort({ createdAt: -1 });
+
+  res.json(posts);
+});

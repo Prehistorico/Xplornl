@@ -29,7 +29,7 @@ module.exports = (req, res, next) => {
   }
 
   if (username) {
-    if (!/^[A-Za-z0-9_]+$/.test(username)) {
+    if (!/^[A-Za-z0-9._\<>\-]+$/.test(username)) {
       return next(new appError('Username inválido', 400));
     }
     if (username.length < 3 || username.length > 20) {

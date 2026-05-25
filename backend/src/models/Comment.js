@@ -16,9 +16,11 @@ const commentSchema = new mongoose.Schema({
   description: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    minlength: 2,
+    maxlength: 1000
   },
-
+  
   status: {
     type: String,
     enum: ['approved', 'pending', 'rejected'],

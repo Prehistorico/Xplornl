@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
 
-const authMiddleware = require('../middleware/authMiddleware');
-const roleMiddleware = require('../middleware/roleMiddleware');
-const validateUser = require('../middleware/validateUser');
-
+const validateObjectId = require('../validators/validateObjectId');
+const {authAdmin} = require('../middleware/authMiddleware');
+const checkOwnership = require('../middleware/checkOwnership');
+const validateUser = require('../validators/validateUser');
 const {
   getUsers,
   getUserById,
@@ -12,10 +13,35 @@ const {
   deleteUser
 } = require('../controllers/userController');
 
-router.get('/', roleMiddleware('admin'), getUsers);
+router.get('/', authAdmin, getUsers);
+router.get(
+  '/:id',
+  validateObjectId(),
+  checkOwnership({
+    model: User,
+    resourceName: 'Usuario'
+  }),
+  getUserById
+);
 
-router.get('/:id', authMiddleware, getUserById);
-router.put('/:id', authMiddleware, validateUser, updateUser);
-router.delete('/:id', authMiddleware, deleteUser);
+router.patch(
+  '/:id',
+  validateObjectId(),
+  checkOwnership({
+    model: User,
+    resourceName: 'Usuario'
+  }),
+  validateUser,
+  updateUser
+);
+router.delete(
+  '/:id',
+  validateObjectId(),
+  checkOwnership({
+    model: User,
+    resourceName: 'Usuario'
+  }),
+  deleteUser
+);
 
 module.exports = router;
