@@ -5,28 +5,37 @@ const catchAsync = require('../utils/catchAsync');
 const pickFields = require('../utils/pickFields');
 
 exports.createPlace = catchAsync(async (req, res) => {
-    const placeData = pickFields(req.body, [
-      'name',
-      'description',
-      'category',
-      'zone',
-      'location',
-      'schedule',
-      'contact',
-      'details',
-      'transport'
-    ]);
+  const parseJSON = value => {
+    try {return JSON.parse(value)} 
+    catch {return value;}
+  };
 
-    const place = await Place.create(placeData);
+  const imagePaths = req.files?.map(file =>`/uploads/places/${file.filename}`) || [];
 
-    res.status(201).json({
-      message: 'Lugar creado',
-      place
-    });
+  const placeData = {
+    name: req.body.name,
+    description: req.body.description,
+    category: req.body.category,
+    zone: req.body.zone,
+
+    location: parseJSON(req.body.location),
+    schedule: parseJSON(req.body.schedule),
+    contact: parseJSON(req.body.contact),
+    details: parseJSON(req.body.details),
+    transport: parseJSON(req.body.transport),
+
+    images: imagePaths
+  };
+
+  const place = await Place.create(placeData);
+  res.status(201).json({
+    message: 'Lugar creado',
+    place
+  });
 });
 exports.getPlaces = catchAsync(async (req, res) => {
     const places = await Place.find()
-    .select('_id name description category zone')
+    .select('_id name description category zone images rating')
     .populate('category', 'name')
     .sort({ createdAt: -1 });
 

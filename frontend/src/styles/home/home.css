@@ -4,7 +4,7 @@
 }
 
 .home-section {
-  padding: 60px 0 72px;
+  padding: 30px 0 30px;
 }
 
 .home-section-title {
@@ -113,6 +113,14 @@
   color: var(--text-muted);
   line-height: 1.6;
   flex: 1;
+}
+
+.place-card-desc,
+.comm-desc {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 .place-card-btn {
@@ -266,7 +274,7 @@
     padding: 0 30px;
   }
   .home-section {
-    padding: 48px 0 56px;
+    padding: 30px 0 30px;
   }
 }
 

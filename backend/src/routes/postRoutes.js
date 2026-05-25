@@ -27,7 +27,7 @@ router.get('/', getPosts);
 router.get('/pending', authAdmin, getPendingPosts);
 router.get('/:id', validateObjectId(), getPostById);
 
-router.post('/', uploadImages, validateCreatePost, createPost);
+router.post('/', uploadImages.array('images', 4), validateCreatePost, createPost);
 router.patch(
 '/:id',
   validateObjectId(),

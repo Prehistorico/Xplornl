@@ -16,6 +16,11 @@ const placeSchema = new mongoose.Schema({
     maxlength: 2000
   },
 
+  images: [{
+    type: String,
+    trim: true
+  }],
+
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category'
