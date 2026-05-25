@@ -10,11 +10,11 @@
 }
 
 .rec-card {
-  background: #fff;
-  border-radius: 15px;
+  background: var(--bkg-card);
+  border-radius: var(--radius-md);
   overflow: hidden;
   width: 280px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 8px var(--bkg-shadow);
   display: flex;
   flex-direction: column;
 }
@@ -35,27 +35,27 @@
 }
 
 .rec-zone {
-  color: gray;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
 .rec-rating {
-  color: #ff6d0f;
+  color: var(--principal-color);
   font-weight: bold;
   margin: 8px 0;
 }
 
 .rec-desc {
   font-size: 14px;
-  color: #555;
+  color: var(--text-muted);
   margin-bottom: 12px;
 }
 
 .rec-btn {
-  background: #ff6d0f;
-  color: #fff;
+  background: var(--principal-color);
+  color: var(--bkg-light);
   border: none;
   padding: 10px 15px;
-  border-radius: 20px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
 }
