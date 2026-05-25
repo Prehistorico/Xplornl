@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/authService";
+
 import "../styles/login.css";
 import { useState } from "react";
 
@@ -7,15 +10,17 @@ import eyeClose from "../assets/icons/eye-close.png";
 
 export default function Login() {
   const [form, setForm] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
+  const navigate = useNavigate();
+
   const messages = {
-    username: "Ingresa tu usuario o correo electrónico",
+    email: "Ingresa tu correo electrónico",
     password: "Ingresa tu contraseña",
   };
 
@@ -39,7 +44,24 @@ export default function Login() {
     }
   };
 
-  const isFormValid = form.username && form.password;
+  const isFormValid = form.email && form.password;
+
+  const handleLogin = async () => {
+  try {
+    const data = await loginUser({
+      email: form.email,
+      password: form.password
+    });
+
+    console.log(data);
+    localStorage.setItem('token', data.token);
+    alert('Inicio de sesión exitoso');
+    navigate('/home');
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+};
 
   return (
     <div className="login-page">
@@ -52,20 +74,20 @@ export default function Login() {
             <div className="input-wrapper">
               <input
                 type="text"
-                name="username"
-                value={form.username}
+                name="email"
+                value={form.email}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 maxLength={50}
                 required
-                className={`login-input-field ${errors.username ? "input-error" : ""}`}
+                className={`login-input-field ${errors.email ? "input-error" : ""}`}
               />
-              <label className={form.username ? "active" : ""}>
-                Usuario o correo electrónico
+              <label className={form.email ? "active" : ""}>
+                Correo electrónico
               </label>
-              <span className="char-count">{form.username.length}/50</span>
+              <span className="char-count">{form.email.length}/50</span>
             </div>
-            {errors.username && <p className="error">{errors.username}</p>}
+            {errors.email && <p className="error">{errors.email}</p>}
           </div>
 
           <div className="input-group">
@@ -97,7 +119,7 @@ export default function Login() {
           </div>
         </div>
 
-        <button className="login-btn" disabled={!isFormValid}>
+        <button className="login-btn" disabled={!isFormValid}onClick={handleLogin}>
           Iniciar Sesión
         </button>
 

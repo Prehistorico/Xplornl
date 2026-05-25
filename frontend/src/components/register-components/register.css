@@ -2,7 +2,7 @@
   min-height:100vh;
   background:
     linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
-    url("../assets/images/register.jpeg");
+    url("../../assets/images/register.jpeg");
 
   background-size:cover;
   background-position:center;
@@ -38,6 +38,7 @@
   font-size:xxx-large;
 }
 
+
 .input-wrapper {
   position: relative;
   width: 100%;
@@ -47,9 +48,27 @@
   width: 100%;
   padding: 18px 15px 8px;
   border-radius: 12px;
-  background: #F1F1F1;
+  background: transparent;
+  color: white;
 }
 
+.input-wrapper input[type="date"] {
+  color: white;
+}
+
+.input-wrapper input[type="date"]::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.input-wrapper input[type="date"]:focus::-webkit-datetime-edit,
+.input-wrapper input[type="date"]:valid::-webkit-datetime-edit {
+  color: white;
+}
+
+.input-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
 .input-wrapper label {
   position: absolute;
   left: 15px;

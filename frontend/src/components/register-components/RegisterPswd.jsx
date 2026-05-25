@@ -2,7 +2,15 @@ import { Link } from "react-router-dom"
 import "./register.css";
 import { useState } from "react";
 
-export default function RegisterPswd({ form, setForm, errors, setErrors, prevStep }) {
+export default function RegisterPswd({
+  form,
+  setForm,
+  errors,
+  setErrors,
+  prevStep,
+  handleRegister
+}) 
+{
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -45,7 +53,7 @@ export default function RegisterPswd({ form, setForm, errors, setErrors, prevSte
             <p className="register-text">Asegúrate que tu contraseña tenga 8 caracteres o más.</p>
             <div className="register-input">
 
-                <div className="input-group">
+                <div className="input-register">
                     <div className="input-wrapper">
                         <input
                             type={showPassword ? "text" : "password"}
@@ -73,7 +81,7 @@ export default function RegisterPswd({ form, setForm, errors, setErrors, prevSte
                     {errors.password && <p className="error">{errors.password}</p>}
                 </div>
                     
-                <div className="input-group">
+                <div className="input-register">
                     <div className="input-wrapper">
                     <input
                         type={showConfirm ? "text" : "password"}
@@ -104,9 +112,13 @@ export default function RegisterPswd({ form, setForm, errors, setErrors, prevSte
 
             <div className="register-options">
                 <button className="register-btn" onClick={prevStep}>Atrás</button>
-                <button className="register-btn" disabled={!isValid}>Registrarse</button>
+                <button
+                  className="register-btn"
+                  disabled={!isValid}
+                  onClick={handleRegister}
+                >Registrarse</button>
             </div>
-            <p className="register-text">¿Ya tienes una cuenta? <Link to="/login">Inicia Sesión</Link></p>
+            <p className="register-text">¿Ya tienes una cuenta? <Link to="/">Inicia Sesión</Link></p>
        </div>
     </div>
   );

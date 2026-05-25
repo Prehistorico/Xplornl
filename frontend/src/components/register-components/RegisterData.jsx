@@ -13,6 +13,7 @@ export default function RegisterData({ form, setForm, errors, setErrors, nextSte
     name: "¿Cómo te llamas?",
     username: "Ingresa un nombre para tu usuario",
     email: "Ingresa tu correo electrónico",
+    birthdate: "Ingresa tu fecha de nacimiento",
   };
 
   const handleBlur = (e) => {
@@ -31,8 +32,7 @@ export default function RegisterData({ form, setForm, errors, setErrors, nextSte
   }
 };
 
-  const isFormValid =
-    form.name && form.username && form.email;
+  const isFormValid = form.name && form.username && form.email && form.birthdate;;
 
   return (
     <div className="register-page">
@@ -41,7 +41,7 @@ export default function RegisterData({ form, setForm, errors, setErrors, nextSte
 
         <div className="register-input">
 
-          <div className="input-group">
+          <div className="input-register">
             <div className="input-wrapper">
               <input 
                 type="text" 
@@ -59,7 +59,7 @@ export default function RegisterData({ form, setForm, errors, setErrors, nextSte
             {errors.name && <p className="error">{errors.name}</p>}
           </div>
 
-          <div className="input-group">
+          <div className="input-register">
             <div className="input-wrapper">
               <input 
                 type="text" 
@@ -77,7 +77,7 @@ export default function RegisterData({ form, setForm, errors, setErrors, nextSte
             {errors.username && <p className="error">{errors.username}</p>}
           </div>
 
-          <div className="input-group">
+          <div className="input-register">
             <div className="input-wrapper">
               <input 
                 type="text" 
@@ -95,10 +95,34 @@ export default function RegisterData({ form, setForm, errors, setErrors, nextSte
             {errors.email && <p className="error">{errors.email}</p>}
           </div>
 
+          <div className="input-register">
+          <div className="input-wrapper">
+
+            <input
+              type="date"
+              name="birthdate"
+              value={form.birthdate}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              required
+              className={`register-input ${errors.birthdate ? "input-error" : ""}`}
+            />
+
+            <label className={form.birthdate ? "active" : ""}>
+              Fecha de nacimiento
+            </label>
+
+          </div>
+
+          {errors.birthdate && (
+            <p className="error">{errors.birthdate}</p>
+          )}
+        </div>
+
         </div>
 
         <button className="register-btn" disabled={!isFormValid} onClick={nextStep} >Continuar</button>
-        <p className="register-text">¿Ya tienes una cuenta? <Link to="/login">Inicia Sesión</Link></p>
+        <p className="register-text">¿Ya tienes una cuenta? <Link to="/">Inicia Sesión</Link></p>
       </div>
     </div>
   );
