@@ -1,16 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const Post = require('../models/Post');
 
-const Post =
-  require('../models/Post');
-const validateObjectId =
-  require('../validators/validateObjectId');
-const checkOwnership =
-  require('../middleware/checkOwnership');
-const {
-  authUser, 
-  authAdmin
-} = require('../middleware/authMiddleware');
+const validateObjectId = require('../validators/validateObjectId');
+const uploadImages = require('../middleware/uploadImages');
+const checkOwnership = require('../middleware/checkOwnership');
+const {authAdmin} = require('../middleware/authMiddleware');
 const {
   validateCreatePost,
   validateUpdatePost
@@ -29,13 +24,12 @@ const {
 
 
 router.get('/', getPosts);
-router.get('/pending', authUser, authAdmin, getPendingPosts);
+router.get('/pending', authAdmin, getPendingPosts);
 router.get('/:id', validateObjectId(), getPostById);
 
-router.post('/', authUser, validateCreatePost, createPost);
+router.post('/', uploadImages, validateCreatePost, createPost);
 router.patch(
 '/:id',
-  authUser,
   validateObjectId(),
   checkOwnership({
     model: Post,
@@ -47,7 +41,6 @@ router.patch(
 );
 router.delete(
   '/:id',
-  authUser,
   validateObjectId(),
   checkOwnership({
     model: Post,
@@ -57,10 +50,9 @@ router.delete(
   deletePost
 );
 
+router.patch('/:id/approve', authAdmin, validateObjectId(), approvePost);
+router.patch('/:id/reject', authAdmin, validateObjectId(), rejectPost);
 
-router.patch('/:id/approve', authUser, authAdmin, validateObjectId(), approvePost);
-router.patch('/:id/reject', authUser, authAdmin, validateObjectId(), rejectPost);
-
-router.patch('/:id/like', authUser, validateObjectId(),  toggleLikePost);
+router.patch('/:id/like', validateObjectId(), toggleLikePost);
 
 module.exports = router;

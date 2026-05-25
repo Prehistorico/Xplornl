@@ -4,17 +4,19 @@ const postSchema = new mongoose.Schema({
 
   title: {
     type: String,
-    required: true,
     trim: true,
-    minlength: 3,
     maxlength: 120
   },
 
   description: {
     type: String,
     trim: true,
-    maxlength: 2000
+    maxlength: 800
   },
+
+  images: [{
+      type: String
+  }],
 
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -24,12 +26,14 @@ const postSchema = new mongoose.Schema({
 
   place: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Place'
+    ref: 'Place',
+    required: true
   },
 
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category'
+    ref: 'Category',
+    required: true
   },
 
   likes: [

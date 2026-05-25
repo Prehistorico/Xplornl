@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -26,11 +27,14 @@ app.use((req, res, next) => {
 app.use('/api', limiter);
 app.use('/api/auth', require('./routes/authRoutes'));
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use('/api/users', authUser, require('./routes/userRoutes'));
 app.use('/api/places', authUser, require('./routes/placeRoutes'));
 app.use('/api/posts', authUser, require('./routes/postRoutes'));
 app.use('/api/comments', authUser, require('./routes/commentRoutes'));
 app.use('/api/categories', authUser, require('./routes/categoryRoutes'));
+app.use('/api/reviews', authUser, require('./routes/reviewRoutes'));
 
 app.get('/', (req, res) => {
     res.send('API funcionando');

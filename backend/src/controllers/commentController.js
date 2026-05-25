@@ -3,7 +3,6 @@ const Post = require('../models/Post');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const containsBannedWords = require('../utils/containsBannedWords');
 
 exports.createComment = catchAsync(async (req, res, next) => {
   const {post, description} = req.body;
@@ -12,12 +11,6 @@ exports.createComment = catchAsync(async (req, res, next) => {
   if (!postExists) {
     return next(
       new AppError('Post no encontrado', 404));
-  }
-  const hasBannedWords = containsBannedWords(description);
-
-  if (hasBannedWords) {
-    return next(
-      new AppError('El comentario contiene lenguaje prohibido', 400));
   }
 
   const comment = await Comment.create({

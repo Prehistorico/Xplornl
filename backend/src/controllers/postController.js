@@ -5,68 +5,47 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
 const pickFields = require('../utils/pickFields');
+const containsBannedWords = require('../utils/containsBannedWords');
 
 exports.createPost = catchAsync(async (req, res) => {
-    const post = await Post.create({
-      ...pickFields(req.body, [
-        'title',
-        'description',
-        'place',
-        'category'
-      ]),
-      user: req.user.id
-    });
+  const imagePaths =req.files?.map(file => `/uploads/posts/${file.filename}`) || [];
 
-    res.status(201).json({
-      message: 'Post creado',
-      post
-    });
+  const post = await Post.create({
+    ...pickFields(req.body, [
+      'title',
+      'description',
+      'place',
+      'category'
+    ]),
+    images: imagePaths,
+    user: req.user.id
+  });
+
+  res.status(201).json({
+    message: 'Post creado',
+    post
+  });
 });
 exports.getPosts = catchAsync(async (req, res) => {
-    const {
-      search,
-      category,
-      place,
-      status
-    } = req.query;
+    const {search, category, place, status} = req.query;
 
     const filter = {};
 
-    if (search) {
-      filter.$text = {
-        $search: search
-      };
-    }
-    if (category) {
-      filter.category = category;
-    }
-    if (place) {
-      filter.place = place;
-    }
-    if (req.user?.role !== 'admin') {
-      filter.status = 'approved';
-    }
-    if (
-      status &&
-      req.user?.role === 'admin'
-    ) {
-      filter.status = status;
-    }
+    if (search) {filter.$text = {$search: search};}
+    if (category) {filter.category = category;}
+    if (place) {filter.place = place;}
 
-    const page = Math.max(
-      parseInt(req.query.page) || 1, 1
-    );
+    if (req.user?.role !== 'admin') {filter.status = 'approved';}
+    if (status && req.user?.role === 'admin'){filter.status = status;}
 
-    const limit = Math.min(
-      Math.max(parseInt(req.query.limit) || 10,1), 50
-    );
-
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 10,1), 50);
     const skip = (page - 1) * limit;
 
     const totalPosts = await Post.countDocuments(filter);
     const posts = await Post.find(filter)
 
-      .populate('user', 'username name')
+      .populate('user', 'username')
       .populate('place', 'name')
       .populate('category', 'name')
 
@@ -97,56 +76,32 @@ exports.getPosts = catchAsync(async (req, res) => {
 
     const commentMap = {};
 
-    commentCounts.forEach(item => {
-      commentMap[item._id.toString()] =
-        item.count;
-    });
+    commentCounts.forEach(item => {commentMap[item._id.toString()] = item.count;});
 
-    const postsWithCounts =
-      posts.map(post => ({
+    const postsWithCounts = posts.map(post => ({
         ...post,
-
-        totalComments:
-          commentMap[
-            post._id.toString()
-          ] || 0
+        totalComments: commentMap[post._id.toString()] || 0
       }));
 
     res.json({
-
       currentPage: page,
-
-      totalPages:
-        Math.ceil(totalPosts / limit),
-
-      totalPosts,
-      posts: postsWithCounts
+      totalPages:Math.ceil(totalPosts / limit),
+      totalPosts, posts: postsWithCounts
     });
 });
 exports.getPostById = catchAsync(async (req, res, next) => {
 
     const post = await Post.findById(req.params.id)
-        .populate(
-          'user',
-          'username name'
-        )
-        .populate(
-          'place',
-          'name description'
-        )
-        .populate(
-          'category',
-          'name'
-        );
+        .populate('user', 'username')
+        .populate('place','name')
+        .populate('category', 'name');
 
     if (!post) {
       return next(
         new AppError('Post no encontrado', 404));
     }
 
-    if (
-      post.status !== 'approved' &&
-      req.user?.role !== 'admin'
+    if (post.status !== 'approved' && req.user?.role !== 'admin'
     ) {
       return next(
         new AppError('Post no encontrado', 404));
@@ -274,21 +229,10 @@ exports.rejectPost = catchAsync(async (req, res, next) => {
 });
 
 exports.getPendingPosts = catchAsync(async (req, res) => {
-    const posts = await Post.find({ status: 'pending'})
+  const posts = await Post.find({ status: 'pending' })
+    .select('_id user status createdAt updatedAt') 
+    .populate('user', 'username name') 
+    .sort({ createdAt: -1 });
 
-        .populate(
-          'user',
-          'username name'
-        )
-        .populate(
-          'place',
-          'name'
-        )
-        .populate(
-          'category',
-          'name'
-        )
-
-        .sort({ createdAt: -1 });
-    res.json(posts);
+  res.json(posts);
 });

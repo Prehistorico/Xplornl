@@ -26,17 +26,15 @@ exports.createPlace = catchAsync(async (req, res) => {
 });
 exports.getPlaces = catchAsync(async (req, res) => {
     const places = await Place.find()
-
-        .populate('category', 'name')
-
-        .sort({ createdAt: -1 });
+    .select('_id name description category zone')
+    .populate('category', 'name')
+    .sort({ createdAt: -1 });
 
     res.json(places);
 });
 exports.getPlaceById = catchAsync(async (req, res, next) => {
     const place = await Place.findById(req.params.id)
-
-        .populate('category', 'name');
+    .populate('category', 'name');
 
     if (!place) {
       return next(

@@ -1,6 +1,7 @@
 const Category = require('../models/Category');
 
-const {isNonEmptyString, isValidObjectId} = require('./valdateInputs');
+const {isNonEmptyString, isValidObjectId} = require('./validateInputs');
+const containsBannedWords = require('../utils/containsBannedWords');
 
 const validatePlace = async (req, res, next) => {
   try {
@@ -11,6 +12,9 @@ const validatePlace = async (req, res, next) => {
         return res.status(400).json({
           message: 'Nombre inválido'
         });
+      }
+      if (containsBannedWords(name)) {
+        return res.status(400).json({message: 'El nombre infringe las normas de la comunidad'});
       }
     }
 

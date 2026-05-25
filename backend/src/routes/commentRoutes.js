@@ -1,16 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const Comment = require('../models/Comment');
 
-const Comment =
-  require('../models/Comment');
-const validateObjectId =
-  require('../validators/validateObjectId');
-const checkOwnership =
-  require('../middleware/checkOwnership');
-const {
-  authUser,
-  authAdmin
-} = require('../middleware/authMiddleware');
+const validateObjectId = require('../validators/validateObjectId');
+const checkOwnership = require('../middleware/checkOwnership');
+const {authAdmin} = require('../middleware/authMiddleware');
 const {
   validateCreateComment,
   validateUpdateComment
@@ -29,14 +23,13 @@ const {
 } = require('../controllers/commentController');
 
 router.get('/', getComments);
-router.get('/pending', authUser, authAdmin, getPendingComments);
+router.get('/pending', authAdmin, getPendingComments);
 router.get('/post/:postId', validateObjectId('postId'), getCommentsByPost);
 router.get('/:id', validateObjectId(), getCommentById);
 
-router.post('/', authUser, validateCreateComment, createComment);
+router.post('/', validateCreateComment, createComment);
 router.patch(
   '/:id',
-  authUser,
   validateObjectId(),
   checkOwnership({
     model: Comment,
@@ -48,7 +41,6 @@ router.patch(
 );
 router.delete(
   '/:id',
-  authUser,
   validateObjectId(),
   checkOwnership({
     model: Comment,
@@ -58,9 +50,9 @@ router.delete(
   deleteComment
 );
 
-router.patch('/:id/approve', authUser, authAdmin, validateObjectId(), approveComment);
-router.patch('/:id/reject', authUser, authAdmin, validateObjectId(), rejectComment);
+router.patch('/:id/approve', authAdmin, validateObjectId(), approveComment);
+router.patch('/:id/reject', authAdmin, validateObjectId(), rejectComment);
 
-router.patch('/:id/like', authUser, validateObjectId(), toggleLikeComment);
+router.patch('/:id/like', validateObjectId(), toggleLikeComment);
 
 module.exports = router;

@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const validateObjectId =
-  require('../validators/validateObjectId');
+const validateObjectId = require('../validators/validateObjectId');
 const {
   authUser,
   authAdmin
@@ -23,8 +22,8 @@ const {
 router.get('/', getCategories);
 router.get('/:id', validateObjectId(), getCategoryById);
 
-router.post('/', authUser, authAdmin, validateCreateCategory, createCategory);
-router.patch('/:id', authUser, authAdmin, validateObjectId(), validateUpdateCategory, updateCategory);
-router.delete('/:id', authUser, authAdmin, validateObjectId(), deleteCategory);
+router.post('/', authAdmin, validateCreateCategory, createCategory);
+router.patch('/:id', authAdmin, validateObjectId(), validateUpdateCategory, updateCategory);
+router.delete('/:id', authAdmin, validateObjectId(), deleteCategory);
 
 module.exports = router;

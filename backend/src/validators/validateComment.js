@@ -16,6 +16,10 @@ exports.validateCreateComment = (req, res, next) => {
     return next(new appError('La descripción es obligatoria', 400));
   }
 
+  if (description !== undefined && containsBannedWords(description)){
+    return next(new AppError('La descripción contiene palabras prohibidas', 400));
+  }
+
   const trimmedDescription = description.trim();
 
   if (trimmedDescription.length < 2) {
@@ -27,8 +31,7 @@ exports.validateCreateComment = (req, res, next) => {
 
   if (trimmedDescription.length > 1000) {
     return next(
-      new appError('El comentario no puede superar los 1000 caracteres', 400
-      )
+      new appError('El comentario no puede superar los 1000 caracteres', 400)
     );
   }
 

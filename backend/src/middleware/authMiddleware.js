@@ -38,7 +38,6 @@ const authUser = (req, res, next) => {
     );
   }
 };
-
 const authAdmin = (req, res, next) => {
   if (req.user.role !== 'admin') {
     return next(

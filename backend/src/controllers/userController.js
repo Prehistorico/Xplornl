@@ -14,14 +14,6 @@ exports.getUsers = catchAsync(async (req, res) => {
 });
 exports.getUserById = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const isOwner = req.user.id === id;
-  const isAdmin = req.user.role === 'admin';
-
-  if (!isOwner && !isAdmin) {
-    return next(
-      new AppError('Usuario no autorizado', 403));
-  }
-
   const user = await User.findById(id)
     .select('-password');
 
@@ -34,13 +26,13 @@ exports.getUserById = catchAsync(async (req, res, next) => {
 });
 exports.updateUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const isOwner = req.user.id === id;
+/*   const isOwner = req.user.id === id;
   const isAdmin = req.user.role === 'admin';
 
   if (!isOwner && !isAdmin) {
     return next(
       new AppError('Usuario no autorizado', 403));
-  }
+  } */
 
   const user = await User.findById(id);
 

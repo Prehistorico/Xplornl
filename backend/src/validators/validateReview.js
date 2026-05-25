@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
-const appError = require('../utils/appError');
+const AppError = require('../utils/appError');
+
+const containsBannedWords = require('../utils/containsBannedWords');
 
 exports.validateCreateReview = (req, res, next) => {
   const {title, description, rating, place} = req.body;
@@ -29,9 +31,9 @@ exports.validateCreateReview = (req, res, next) => {
       new appError('El título debe tener al menos 3 caracteres', 400));
   }
 
-  if (trimmedTitle.length > 100) {
+  if (trimmedTitle.length > 50) {
     return next(
-      new appError('El título no puede superar los 100 caracteres', 400));
+      new appError('El título no puede superar los 50 caracteres', 400));
   }
 
   req.body.title = trimmedTitle;
@@ -45,12 +47,20 @@ exports.validateCreateReview = (req, res, next) => {
 
     const trimmedDescription = description.trim();
 
-    if (trimmedDescription.length > 1000) {
+    if (trimmedDescription.length > 200) {
       return next(
-        new appError('La descripción no puede superar los 1000 caracteres', 400));
+        new appError('La descripción no puede superar los 200 caracteres', 400));
     }
 
     req.body.description = trimmedDescription;
+  }
+
+  if (title !== undefined && containsBannedWords(title)){
+    return next(new AppError('El título contiene palabras prohibidas', 400));
+  }
+
+  if (description !== undefined && containsBannedWords(description)){
+    return next(new AppError('La descripción contiene palabras prohibidas', 400));
   }
 
   if (rating === undefined) {
@@ -64,9 +74,9 @@ exports.validateCreateReview = (req, res, next) => {
       new appError('El rating debe ser un número', 400));
   }
 
-  if (rating < 1 || rating > 5) {
+  if (rating < 0 || rating > 5) {
     return next(
-      new appError('El rating debe estar entre 1 y 5', 400));
+      new appError('El rating debe estar entre 0 y 5', 400));
   }
 
   next();
@@ -87,9 +97,9 @@ exports.validateUpdateReview = (req, res, next) => {
         new appError('El título debe tener al menos 3 caracteres', 400));
     }
 
-    if (trimmedTitle.length > 100) {
+    if (trimmedTitle.length > 50) {
       return next(
-        new appError('El título no puede superar los 100 caracteres', 400));
+        new appError('El título no puede superar los 50 caracteres', 400));
     }
 
     req.body.title = trimmedTitle;
@@ -104,9 +114,9 @@ exports.validateUpdateReview = (req, res, next) => {
 
     const trimmedDescription = description.trim();
 
-    if (trimmedDescription.length > 1000) {
+    if (trimmedDescription.length > 200) {
       return next(
-        new appError('La descripción no puede superar los 1000 caracteres', 400));
+        new appError('La descripción no puede superar los 200 caracteres', 400));
     }
 
     req.body.description = trimmedDescription;
@@ -119,9 +129,9 @@ exports.validateUpdateReview = (req, res, next) => {
         new appError('El rating debe ser un número', 400));
     }
 
-    if (rating < 1 || rating > 5) {
+    if (rating < 0 || rating > 5) {
       return next(
-        new appError('El rating debe estar entre 1 y 5', 400));
+        new appError('El rating debe estar entre 0 y 5', 400));
     }
   }
 

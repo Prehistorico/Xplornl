@@ -24,7 +24,7 @@ module.exports = (req, res, next) => {
     return next(new appError('Nombre inválido', 400));
   }
 
-  if (!/^[A-Za-z0-9_]+$/.test(username)) {
+  if (!/^[A-Za-z0-9._\<>\-]+$/.test(username)) {
     return next(new appError('Username inválido', 400));
   }
 

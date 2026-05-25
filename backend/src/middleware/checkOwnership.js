@@ -8,39 +8,33 @@ const checkOwnership = ({
   attachAs = 'resource'
 }) => {
 
-  return catchAsync(async (
-    req,
-    res,
-    next
-  ) => {
+  return catchAsync(async (req, res, next) => {
 
-    const resource = await model.findById(
-      req.params[param]
-    );
+    const resource =
+      await model.findById(req.params[param]);
 
     if (!resource) {
-
       return next(
         new AppError(
-          `${resourceName} no encontrado`,
-          404
+          `${resourceName} no encontrado`, 404
         )
       );
     }
 
+    const ownerId =
+      resource.user?._id ||
+      resource.user ||
+      resource._id;
+
     const isOwner =
-      resource.user.toString() === req.user.id;
+      ownerId.toString() === req.user.id;
 
     const isAdmin =
       req.user.role === 'admin';
 
     if (!isOwner && !isAdmin) {
-
       return next(
-        new AppError(
-          'No autorizado',
-          403
-        )
+        new AppError('No autorizado', 403)
       );
     }
 
