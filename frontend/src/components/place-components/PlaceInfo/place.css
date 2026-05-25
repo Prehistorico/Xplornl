@@ -20,22 +20,22 @@
 }
 
 .place-category {
-  color: #ff6d0f;
+  color: var(--principal-color);
   font-size: 20px;
   margin-top: 5px;
 }
 
 .place-rating {
-  background: #ff6d0f;
-  color: white;
+  background: var(--principal-color);
+  color: var(--bkg-light);
   padding: 10px 20px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-weight: bold;
 }
 
 .place-desc {
   margin: 20px 0;
-  color: #555;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -60,13 +60,14 @@
 .icon {
   width: 45px;
   height: 45px;
-  background: #ffe5d4;
-  color: #ff6d0f;
+  background: var(--principal-light);
+  color: var(--principal-color);
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   font-size: 20px;
+  flex-shrink: 0;
 }
 
 .deats-name {
@@ -81,19 +82,19 @@
 }
 
 .info-card {
-  background: white;
-  border-radius: 15px;
+  background: var(--bkg-card);
+  border-radius: var(--radius-md);
   padding: 20px;
   border: 1px solid #e0e0e0;
 }
 
 .card-title {
-  color: gray;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
 .open {
-  color: #ff6d0f;
+  color: var(--principal-color);
   font-weight: bold;
 }
 
