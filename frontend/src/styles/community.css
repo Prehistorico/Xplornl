@@ -1,14 +1,12 @@
 .community-section {
-  margin: 0;
-  padding: 0;
   padding: 20px;
-  background-color: #f1f1f1;
+  background-color: var(--bkg-page);
 }
 
 .community-page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 0px 20px;
+  padding: 0 20px;
 }
 
 .post-typy {
@@ -16,31 +14,29 @@
   align-items: center;
   gap: 15px;
   padding: 10px;
-  border-color: #fff;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
 }
 
-.post-typy img{
-    max-width: 50px;
-    border-radius: 100%;
+.post-typy img {
+  max-width: 50px;
+  border-radius: 50%;
 }
 
 .post-typy input {
   flex: 1;
-  border: none;
-  background: #fff;
-  padding: 15px;
   border: 2px solid #ddd;
-  border-radius: 25px;
+  background: var(--bkg-card);
+  padding: 15px;
+  border-radius: var(--radius-pill);
   font-size: 16px;
 }
 
 .post-container {
-  background: #fff;
-  border-radius: 20px;
+  background: var(--bkg-card);
+  border-radius: var(--radius-lg);
   padding: 20px;
   margin-top: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px var(--bkg-shadow);
 }
 
 .post-user {
@@ -49,9 +45,9 @@
   align-items: center;
 }
 
-.post-user img{
-    max-width: 50px;
-    border-radius: 100%;
+.post-user img {
+  max-width: 50px;
+  border-radius: 50%;
 }
 
 .post-info h2 {
@@ -60,39 +56,39 @@
   margin: 10px 0;
 }
 
-.post-info p{
+.post-info p {
   margin-top: 30px;
 }
 
 .post-tags span {
-  background: #FDD5BA;
-  color: #FF6D0F;
+  background: var(--principal-light);
+  color: var(--principal-color);
   padding: 5px 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   margin-right: 5px;
   font-size: 14px;
 }
 
 .post-image img {
   width: 100%;
-  border-radius: 15px;
+  border-radius: var(--radius-md);
   margin-top: 10px;
 }
 
 .post-stats {
   display: flex;
   gap: 25px;
-  margin: 30px 20px 20px 0px;
-  color: #555;
+  margin: 30px 20px 20px 0;
+  color: var(--text-muted);
 }
 
-.post-stats img{
-    width: 20px;
+.post-stats img {
+  width: 20px;
 }
 
-.post-like, .post-comme{
+.post-like,
+.post-comme {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
