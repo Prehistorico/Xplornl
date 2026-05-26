@@ -2,7 +2,7 @@ export default function Card({ place }) {
   return (
     <div className="rec-card">
       <div className="rec-image">
-        {/* Aquí puedes poner una <img src={place.image} alt={place.name}/> */}
+        {/*<img src={place.image} alt={place.name}/> */}
       </div>
 
       <div className="rec-content">
