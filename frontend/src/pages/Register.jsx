@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/authService";
 
+import NavbarAuth from "../components/Shared/Navbar-component/NavbarAuth"
 import RegisterData from "../components/register-components/RegisterData";
 import RegisterPswd from "../components/register-components/RegisterPswd";
+import ConfirmEmail from "../components/warning-components/confirmEmail/confirmEmail";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -13,49 +15,57 @@ export default function Register() {
     name: "",
     username: "",
     email: "",
-    birthdate: "",
+
+    birthday: "",
+    birthmonth: "",
+    birthyear: "",
+
     password: "",
     confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [showConfirmEmail, setShowConfirmEmail] = useState(false);
 
   const nextStep = () => setStep(2);
   const prevStep = () => setStep(1);
 
   const handleRegister = async () => {
+    try {
+      const birthdate =
+        `${form.birthyear}-${String(form.birthmonth).padStart(2, "0")}-${String(form.birthday).padStart(2, "0")}`;
 
-  try {
       const userData = {
         name: form.name,
         username: form.username,
         email: form.email,
-        birthdate: form.birthdate,
+        birthdate,
         password: form.password,
         confirmPassword: form.confirmPassword
       };
 
       const data = await registerUser(userData);
       console.log(data);
-      alert('Usuario registrado correctamente');
-      navigate('/login');
+      setShowConfirmEmail(true);
 
-    } catch (error) {
-      console.error(error);
 
-      if (error.fields) {
-        const backendErrors = {};
-        error.fields.forEach(field => {backendErrors[field] = error.message;});
-        setErrors(backendErrors);
+      } catch (error) {
+        console.error(error);
 
-      } else {
-        alert(error.message || 'Error al registrarse');
+        if (error.fields) {
+          const backendErrors = {};
+          error.fields.forEach(field => {backendErrors[field] = error.message;});
+          setErrors(backendErrors);
+
+        } else {
+          alert(error.message || 'Error al registrarse');
+        }
       }
-    }
-  };
+    };
 
   return (
     <>
+      <NavbarAuth/>
       {step === 1 && (
         <RegisterData
           form={form}
@@ -74,6 +84,12 @@ export default function Register() {
           setErrors={setErrors}
           prevStep={prevStep}
           handleRegister={handleRegister}
+        />
+      )}
+
+      {showConfirmEmail && (
+        <ConfirmEmail
+          onContinue={() => navigate("/")}
         />
       )}
     </>

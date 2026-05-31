@@ -93,3 +93,24 @@
 .login-box a{
   color:#ff7a00;
 }
+
+.email-warning-text {
+  margin-top: 10px;
+  color: #FF6D0F;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 6px;
+}
+
+.email-warning-text:hover {
+  opacity: 0.8;
+}
+.warning-icon {
+  width: 16px;
+  height: 16px;
+}

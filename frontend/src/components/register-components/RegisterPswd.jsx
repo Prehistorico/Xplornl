@@ -18,7 +18,6 @@ export default function RegisterPswd({
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
-
   const handleBlur = (e) => {
     const { name, value } = e.target;
 
@@ -39,10 +38,24 @@ export default function RegisterPswd({
       }));
     }
   };
+
+  const passwordRules = {
+    minLength: form.password.length >= 8,
+    hasUppercase: /[A-Z]/.test(form.password),
+    hasLowercase: /[a-z]/.test(form.password),
+    hasNumber: /[0-9]/.test(form.password),
+    hasSpecialChar: /[#$%&_ -]/.test(form.password),
+  };
   
+  const isPasswordValid =
+    passwordRules.minLength &&
+    passwordRules.hasUppercase &&
+    passwordRules.hasLowercase &&
+    passwordRules.hasNumber &&
+    passwordRules.hasSpecialChar;
 
   const isValid =
-    form.password &&
+    isPasswordValid &&
     form.confirmPassword &&
     form.password === form.confirmPassword;
 
@@ -50,9 +63,29 @@ export default function RegisterPswd({
     <div className="register-page">
         <div className="register-box">
             <h1>Registrate</h1>
-            <p className="register-text">Asegúrate que tu contraseña tenga 8 caracteres o más.</p>
-            <div className="register-input">
+            <p className="register-text">
+              Tu contraseña debe tener: 
+              <ul className="password-rules">
+                <li className={passwordRules.minLength ? "valid-rule" : ""}>
+                  Mínimo 8 caracteres.
+                </li>
+                <li className={passwordRules.hasUppercase ? "valid-rule" : ""}>
+                  Una mayúscula.
+                </li>
+                <li className={passwordRules.hasLowercase ? "valid-rule" : ""}>
+                  Una minúscula.
+                </li>
+                <li className={passwordRules.hasNumber ? "valid-rule" : ""}>
+                  Un número.
+                </li>
+                <li className={passwordRules.hasSpecialChar ? "valid-rule" : ""}>
+                  Un carácter especial (#$%&_-).
+                </li>
+              </ul>
+              
+            </p>
 
+            <div className="register-input">
                 <div className="input-register">
                     <div className="input-wrapper">
                         <input
@@ -68,14 +101,14 @@ export default function RegisterPswd({
                       <label className={form.password ? "active" : ""}>Contraseña</label>
 
                       <span
-                        className="toggle-password"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                        {showPassword ? (
-                            <img src="eye-open.png" alt="Mostrar contraseña" />
-                        ) : (
-                            <img src="eye-close.png" alt="Ocultar contraseña" />
-                        )}
+                          className="toggle-password"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                          {showPassword ? (
+                              <img src="eye-open.png" alt="Mostrar contraseña" />
+                          ) : (
+                              <img src="eye-close.png" alt="Ocultar contraseña" />
+                          )}
                         </span>
                     </div>
                     {errors.password && <p className="error">{errors.password}</p>}
@@ -93,13 +126,13 @@ export default function RegisterPswd({
                         required
                         className={`login-input-field ${errors.password ? "input-error" : ""}`}
                     />
-                    <label className={form.password ? "active" : ""}>Contraseña</label>
+                    <label className={form.password ? "active" : ""}>Confirmar contraseña</label>
 
                     <span
                         className="toggle-password"
                         onClick={() => setShowConfirm(!showConfirm)}
                     >
-                        {showPassword ? (
+                        {showConfirm ? (
                             <img src="eye-open.png" alt="Mostrar contraseña" />
                         ) : (
                             <img src="eye-close.png" alt="Ocultar contraseña" />

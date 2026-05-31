@@ -1,0 +1,111 @@
+.email-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+.email-modal {
+  width: 420px;
+  background: #F6D7C2;
+  border-radius: 12px;
+
+  padding: 28px;
+
+  box-shadow: 0 8px 25px rgba(0,0,0,.2);
+}
+
+.email-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.email-icon {
+  width: 28px;
+  height: 28px;
+
+  border-radius: 50%;
+
+  background: #FF6D0F;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: bold;
+  font-size: 18px;
+
+  flex-shrink: 0;
+}
+
+.email-header h2 {
+  margin: 0;
+
+  color: #FF6D0F;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.email-message {
+  margin: 20px 40px;
+
+  color: #3B2A20;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.email-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+
+  margin-top: 24px;
+}
+
+.btn-outline {
+  min-width: 150px;
+  padding: 10px 16px;
+
+  border-radius: 999px;
+
+  border: 2px solid #FF6D0F;
+  background: transparent;
+
+  color: #FF6D0F;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: .2s;
+}
+
+.btn-outline:hover {
+  background: rgba(255,109,15,.08);
+}
+
+.btn-primary {
+  min-width: 150px;
+  padding: 10px 16px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: #FF6D0F;
+  color: white;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  transition: .2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
