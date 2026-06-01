@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { toggleLike } from "../../../services/postService";
+import { toggleLike, approvePost, rejectPost } from "../../../services/postService";
+import StatusDropdown from "../../Shared/Status-component/StatusDropdown";
+import UserAvatar from "../../Shared/EditProfileModal/UserAvatar";
 
 const IMG_BASE = 'http://localhost:5000';
 
@@ -19,6 +21,24 @@ function timeAgo(dateStr) {
 const Post = ({ post, onOpenComments, onLikeToggle }) => {
   const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
   const userId = storedUser.id || storedUser._id || '';
+  const isAdmin = storedUser.role === 'admin';
+
+  const [postStatus, setPostStatus] = useState(post.status || 'approved');
+   const handleApprove = async () => {
+      try {
+        await approvePost(post._id);
+        setPostStatus('approved');
+      } catch (error) { console.error(error); }
+    };
+
+    const handleReject = async () => {
+      try {
+        await rejectPost(post._id);
+        setPostStatus('rejected');
+      } catch (error) { console.error(error); }
+    };
+
+  const [currentImage, setCurrentImage] = useState(0);
 
   const [liked,      setLiked]      = useState(post.likes?.some(id => id === userId || id?._id === userId));
   const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
@@ -41,15 +61,22 @@ const Post = ({ post, onOpenComments, onLikeToggle }) => {
   const initials = username.slice(0, 2).toUpperCase();
 
   return (
-    <div className="post-container">
+    <div id={`post-${post._id}`} className="post-container">
 
       <div className="post-user">
-        <div className="post-avatar" style={{ background: '#E8A87C', display:'flex', alignItems:'center', justifyContent:'center', width:40, height:40, borderRadius:'50%', fontWeight:700, fontSize:'0.9rem', color:'#2b1a0e', flexShrink:0 }}>
-          {initials}
-        </div>
+        <UserAvatar user={post.user} size={40} />
         <div className="user-data">
           <p><strong>@{username}</strong></p>
           <p>{timeAgo(post.createdAt)}</p>
+        </div>
+        <div style={{ marginLeft: 'auto' }}>
+          {isAdmin && (
+            <StatusDropdown
+              status={postStatus}
+              onApprove={handleApprove}
+              onReject={handleReject}
+            />
+          )}
         </div>
       </div>
 
@@ -62,14 +89,61 @@ const Post = ({ post, onOpenComments, onLikeToggle }) => {
         </div>
 
         {post.images?.length > 0 && (
-          <div className="post-image">
+          <div className="post-carousel">
+
+            {post.images.length > 1 && (
+              <button
+                className="carousel-btn left"
+                onClick={() =>
+                  setCurrentImage(
+                    currentImage === 0
+                      ? post.images.length - 1
+                      : currentImage - 1
+                  )
+                }
+              >‹
+              </button>
+            )}
+
             <img
-              src={`${IMG_BASE}${post.images[0]}`}
-              alt="post"
-              onError={e => { e.target.style.display = 'none'; }}
+              key={currentImage}
+              src={`${IMG_BASE}${post.images[currentImage]}`}
+              alt={`post-${currentImage}`}
             />
+
+            {post.images.length > 1 && (
+              <button
+                className="carousel-btn right"
+                onClick={() =>
+                  setCurrentImage(
+                    currentImage === post.images.length - 1
+                      ? 0
+                      : currentImage + 1
+                  )
+                }
+              >
+                ›
+              </button>
+            )}
+
           </div>
         )}
+
+        {post.images?.length > 1 && (
+          <div className="carousel-dots">
+            {post.images.map((_, index) => (
+              <span
+                key={index}
+                className={
+                  currentImage === index
+                    ? "dot active"
+                    : "dot"
+                }
+                onClick={() => setCurrentImage(index)}
+              />
+            ))}
+          </div>
+      )}
 
         <p>{post.description}</p>
       </div>

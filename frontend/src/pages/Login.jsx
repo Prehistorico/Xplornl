@@ -5,6 +5,7 @@ import { loginUser } from "../services/authService";
 
 import NavbarAuth from "../components/Shared/Navbar-component/NavbarAuth";
 import EmailWarning from "../components/warning-components/confirmEmail/emailWarning";
+import AuthWarning from "../components/warning-components/authWarning/authWarning";
 
 import "../styles/login.css";
 
@@ -22,9 +23,9 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [showEmailWarning, setShowEmailWarning] = useState(false);
-
   const [showEmailModal, setShowEmailModal] = useState(false);
-
+  const [showAuthWarning, setShowAuthWarning] = useState(false);
+  
   const navigate = useNavigate();
 
   const messages = {
@@ -43,6 +44,12 @@ export default function Login() {
     if (showEmailWarning || showEmailModal) {
       setShowEmailWarning(false);
       setShowEmailModal(false);
+    }
+
+    if (showEmailWarning || showEmailModal || showAuthWarning) {
+      setShowEmailWarning(false);
+      setShowEmailModal(false);
+      setShowAuthWarning(false);
     }
   };
 
@@ -77,15 +84,15 @@ export default function Login() {
 
     } catch (error) {
       console.error(error);
- 
+
       if (
         error.message === "Debes verificar tu correo antes de iniciar sesión"
       ) {
         setShowEmailWarning(true);
         return;
-      } 
+      }
 
-      alert(error.message);
+      setShowAuthWarning(true);
     }
   };
 
@@ -207,6 +214,11 @@ export default function Login() {
             setShowEmailModal(false);
             setShowEmailWarning(false);
           }}
+        />
+      )}
+      {showAuthWarning && (
+        <AuthWarning
+          onContinue={() => setShowAuthWarning(false)}
         />
       )}
     </>

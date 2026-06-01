@@ -122,3 +122,46 @@
   font-size: 12px;
   margin-top: 5px;
 }
+
+.comment-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comment-menu {
+  position: relative;
+}
+
+.comment-menu-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+}
+
+.comment-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.comment-dropdown button {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 10px 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.comment-dropdown button:hover {
+  background: #f5f5f5;
+}

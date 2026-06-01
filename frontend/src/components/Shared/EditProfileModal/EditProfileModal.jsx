@@ -18,8 +18,12 @@ function parseBirthdate(dateStr) {
 }
 
 export default function EditProfileModal({ isOpen, onClose }) {
-  const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const [storedUser, setStoredUser] = useState(() =>
+  JSON.parse(localStorage.getItem('user') || '{}'));
+
   const birth = parseBirthdate(storedUser.birthdate);
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [preview, setPreview] = useState(storedUser.avatar || "");
 
   const [form, setForm] = useState({
     name:            storedUser.name     || '',
@@ -40,6 +44,31 @@ export default function EditProfileModal({ isOpen, onClose }) {
     if (isOpen) { setSuccess(''); setError(''); }
   }, [isOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (preview?.startsWith('blob:')) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
+
+  useEffect(() => {
+    const syncUser = () => {
+      const updated = JSON.parse(localStorage.getItem('user') || '{}');
+      setStoredUser(updated);
+      setPreview(updated.avatar || "");
+    };
+
+    window.addEventListener('userUpdated', syncUser);
+    return () => window.removeEventListener('userUpdated', syncUser);
+  }, []);
+  
+    useEffect(() => {
+      if (!avatarFile) {
+        setPreview(storedUser.avatar || "");
+      }
+    }, [storedUser, avatarFile]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
@@ -52,46 +81,81 @@ export default function EditProfileModal({ isOpen, onClose }) {
     return `${birthYear}-${birthMonth.padStart(2,'0')}-${birthDay.padStart(2,'0')}`;
   };
 
-  const handleSave = async () => {
-    setError(''); setSuccess('');
-    const userId = storedUser.id || storedUser._id;
-    if (!userId) { setError('No se encontró tu sesión. Vuelve a iniciar sesión.'); return; }
+const handleSave = async () => {
+  setError('');
+  setSuccess('');
 
-    const payload = {};
-    if (form.name     !== (storedUser.name     || '')) payload.name     = form.name;
-    if (form.username !== (storedUser.username || '')) payload.username = form.username;
-    if (form.email    !== (storedUser.email    || '')) payload.email    = form.email;
+  const userId = storedUser.id || storedUser._id;
+  if (!userId) {
+    setError('No se encontró tu sesión. Vuelve a iniciar sesión.');
+    return;
+  }
 
-    const birthdate = buildBirthdate();
-    const origBirth = parseBirthdate(storedUser.birthdate);
-    const origStr = origBirth.year
-      ? `${origBirth.year}-${origBirth.month.padStart(2,'0')}-${origBirth.day.padStart(2,'0')}`
-      : '';
-    if (birthdate && birthdate !== origStr) payload.birthdate = birthdate;
+  const formData = new FormData();
 
-    if (form.password) {
-      payload.password        = form.password;
-      payload.confirmPassword = form.confirmPassword;
-    }
+  if (form.name !== storedUser.name)
+    formData.append("name", form.name);
 
-    if (Object.keys(payload).length === 0) { setError('No realizaste ningún cambio.'); return; }
+  if (form.username !== storedUser.username)
+    formData.append("username", form.username);
 
-    try {
-      setLoading(true);
-      const data = await updateUser(userId, payload);
-      localStorage.setItem('user', JSON.stringify({ ...storedUser, ...data.user }));
-      setSuccess(
-        form.email !== storedUser.email
-          ? 'Cambios guardados. Revisa tu nuevo correo para verificarlo.'
-          : 'Cambios guardados correctamente.'
-      );
-      setForm(prev => ({ ...prev, password: '', confirmPassword: '' }));
-    } catch (err) {
-      setError(err.message || 'Error al guardar los cambios.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (form.email !== storedUser.email)
+    formData.append("email", form.email);
+
+  const birthdate = buildBirthdate();
+  const origBirth = parseBirthdate(storedUser.birthdate);
+
+  const origStr = origBirth.year
+    ? `${origBirth.year}-${origBirth.month.padStart(2,'0')}-${origBirth.day.padStart(2,'0')}`
+    : '';
+
+  if (birthdate && birthdate !== origStr) {
+    formData.append("birthdate", birthdate);
+  }
+
+  if (form.password) {
+    formData.append("password", form.password);
+    formData.append("confirmPassword", form.confirmPassword);
+  }
+
+  if (avatarFile) {
+    formData.append("avatar", avatarFile);
+  }
+
+  if ([...formData.entries()].length === 0) {
+    setError('No realizaste ningún cambio.');
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const data = await updateUser(userId, formData);
+
+    const updatedUser = { ...storedUser, ...data.user };
+
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+
+    window.dispatchEvent(new Event('userUpdated'));
+
+    setSuccess(
+      form.email !== storedUser.email
+        ? 'Cambios guardados. Revisa tu nuevo correo para verificarlo.'
+        : 'Cambios guardados correctamente.'
+    );
+
+    setForm(prev => ({
+      ...prev,
+      password: '',
+      confirmPassword: ''
+    }));
+
+  } catch (err) {
+    setError(err.message || 'Error al guardar los cambios.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -116,6 +180,12 @@ export default function EditProfileModal({ isOpen, onClose }) {
     }
   };
 
+  const initials = (storedUser.username || 'US').slice(0, 2).toUpperCase();
+  const AVATAR_COLORS = ["#E8A87C", "#85C1E9", "#A9DFBF", "#F1948A"];
+  const avatarColor = AVATAR_COLORS[
+    (storedUser.username?.charCodeAt(0) || 0) % AVATAR_COLORS.length
+  ];
+
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => currentYear - i);
   const days  = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -127,17 +197,33 @@ export default function EditProfileModal({ isOpen, onClose }) {
       <aside className={`ep-panel ${isOpen ? 'ep-panel--open' : ''}`}>
         <button className="ep-close" onClick={onClose} aria-label="Cerrar">✕</button>
 
-        {/* Avatar */}
-        <div className="ep-avatar-wrap">
-          <div className="ep-avatar-ring">
+      <div className="ep-avatar-wrap">
+        <div className="ep-avatar-ring">
+          {preview ? (
             <img
-              src={storedUser.avatar || '/user_icon.png'}
+              src={
+                preview.startsWith('blob:')
+                  ? preview
+                  : `http://localhost:5000${preview}?t=${Date.now()}`
+              }
               alt="Foto de perfil"
-              className="ep-avatar-img"
-            />
-          </div>
-          <button className="ep-avatar-edit">Editar foto de perfil</button>
+              className="ep-avatar-img"/>
+          ) : (
+            <div className="ep-avatar-initials" style={{ background: avatarColor }}>
+              {initials}
+            </div>
+          )}
         </div>
+        <label className="ep-avatar-edit">
+          Editar foto de perfil
+          <input type="file" accept="image/*" hidden onChange={(e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            setAvatarFile(file);
+            setPreview(URL.createObjectURL(file));
+          }} />
+        </label>
+      </div>
 
         <h2 className="ep-display-name">{storedUser.name || 'Tu nombre'}</h2>
         <p className="ep-display-username">@{storedUser.username || 'usuario'}</p>

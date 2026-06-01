@@ -1,6 +1,9 @@
 .recs-section {
-  margin-top: 60px;
-  padding: 40px;
+  padding: 20px 40px 40px 40px;
+}
+
+.recs-section h2{
+  padding: 0px 0px 20px 0px;
 }
 
 .recs-list {

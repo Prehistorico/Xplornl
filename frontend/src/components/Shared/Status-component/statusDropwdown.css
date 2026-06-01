@@ -1,0 +1,82 @@
+.status-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.status-label {
+  font-size: 13px;
+  color: #888;
+  white-space: nowrap;
+}
+
+.status-dropdown {
+  position: relative;
+}
+
+.status-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.status-approved {
+  background: #FFF0E6;
+  color: var(--principal-color);
+}
+
+.status-rejected {
+  background: #f0f0f0;
+  color: #888;
+}
+
+.status-chevron {
+  font-size: 11px;
+}
+
+.status-options {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  overflow: hidden;
+  z-index: 100;
+  min-width: 140px;
+}
+
+.status-option {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.status-option-approve {
+  color: var(--principal-color);
+}
+
+.status-option-approve:hover {
+  background: #FFF0E6;
+}
+
+.status-option-reject {
+  color: #888;
+}
+
+.status-option-reject:hover {
+  background: #f5f5f5;
+}

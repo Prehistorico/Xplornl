@@ -6,6 +6,7 @@ const validateObjectId = require('../validators/validateObjectId');
 const {authAdmin} = require('../middleware/authMiddleware');
 const checkOwnership = require('../middleware/checkOwnership');
 const validateUser = require('../validators/validateUser');
+const uploadImages = require('../middleware/uploadImages');
 const {
   getUsers,
   getUserById,
@@ -27,10 +28,8 @@ router.get(
 router.patch(
   '/:id',
   validateObjectId(),
-  checkOwnership({
-    model: User,
-    resourceName: 'Usuario'
-  }),
+  checkOwnership({ model: User, resourceName: 'Usuario' }),
+  uploadImages.single('avatar'),
   validateUser,
   updateUser
 );

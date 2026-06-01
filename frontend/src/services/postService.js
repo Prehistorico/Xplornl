@@ -30,3 +30,23 @@ export const toggleLike = async (postId) => {
   if (!response.ok) throw new Error(data.message || 'Error al dar like');
   return data;
 };
+
+export const approvePost = async (postId) => {
+  const response = await fetch(`${API_URL}/${postId}/approve`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${getToken()}` }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Error aprobando post');
+  return data;
+};
+
+export const rejectPost = async (postId) => {
+  const response = await fetch(`${API_URL}/${postId}/reject`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${getToken()}` }
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || 'Error rechazando post');
+  return data;
+};

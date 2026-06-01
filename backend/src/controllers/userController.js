@@ -26,84 +26,42 @@ exports.getUserById = catchAsync(async (req, res, next) => {
 });
 exports.updateUser = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-/*   const isOwner = req.user.id === id;
-  const isAdmin = req.user.role === 'admin';
-
-  if (!isOwner && !isAdmin) {
-    return next(
-      new AppError('Usuario no autorizado', 403));
-  } */
 
   const user = await User.findById(id);
-
   if (!user) {
-    return next(
-      new AppError('Usuario no encontrado', 404));
+    return next(new AppError('Usuario no encontrado', 404));
   }
 
-  const updates = pickFields(req.body, [
-    'username',
-    'name',
-    'birthdate'
-  ]);
+  const updates = {
+    username: req.body.username,
+    avatar: req.body.avatar,
+    name: req.body.name,
+    birthdate: req.body.birthdate,
+    email: req.body.email
+  };
 
-  Object.assign(user, updates);
+  if (req.file) {
+    updates.avatar = `/uploads/users/${req.file.filename}`;
+  }
 
   if (req.body.password) {
     user.password = req.body.password;
   }
 
-  if (
-    req.body.email &&
-    req.body.email !== user.email
-  ) {
-
-    const existingUser = await User.findOne({
-      email: req.body.email
-    });
-
-    if (existingUser) {
-      return next(
-        new AppError('El correo ya está registrado',400));
+  const updatedUser = await User.findByIdAndUpdate(
+    id,
+    { $set: updates },
+    {
+      new: true,
+      runValidators: true
     }
-
-    const emailToken =
-      crypto.randomBytes(32).toString('hex');
-
-    const emailTokenHash =
-      crypto
-        .createHash('sha256')
-        .update(emailToken)
-        .digest('hex');
-
-    user.email = req.body.email;
-    user.isVerified = false;
-    user.emailToken = emailTokenHash;
-
-    const verifyURL =
-      `http://localhost:5000/api/verify/${emailToken}`;
-
-    await sendEmail(
-      req.body.email,
-      'Verifica tu nuevo correo',
-      `
-      <h1>Verificación de cambio de correo</h1>
-      <p>Haz click para verificar tu nuevo correo:</p>
-      <a href="${verifyURL}">
-        ${verifyURL}
-      </a>
-      `
-    );
-  }
-
-  await user.save();
+  );
 
   res.json({
-
     message: 'Usuario actualizado',
-
     user: {
       id: user._id,
+      avatar: user.avatar,
       username: user.username,
       email: user.email,
       name: user.name,

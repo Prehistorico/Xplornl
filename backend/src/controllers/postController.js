@@ -45,7 +45,7 @@ exports.getPosts = catchAsync(async (req, res) => {
     const totalPosts = await Post.countDocuments(filter);
     const posts = await Post.find(filter)
 
-      .populate('user', 'username')
+      .populate('user', 'username avatar')
       .populate('place', 'name')
       .populate('category', 'name')
 
@@ -92,7 +92,7 @@ exports.getPosts = catchAsync(async (req, res) => {
 exports.getPostById = catchAsync(async (req, res, next) => {
 
     const post = await Post.findById(req.params.id)
-        .populate('user', 'username')
+        .populate('user', 'username avatar')
         .populate('place','name')
         .populate('category', 'name');
 
@@ -112,7 +112,7 @@ exports.getPostById = catchAsync(async (req, res, next) => {
         status: 'approved'
       })
 
-        .populate('user', 'username')
+        .populate('user', 'username avatar')
         .sort({ createdAt: -1 });
 
     res.json({

@@ -32,7 +32,7 @@ exports.getComments = catchAsync(async (req, res) => {
   }
 
   const comments = await Comment.find(filter)
-    .populate('user', 'username')
+    .populate('user', 'username avatar')
     .populate('post', 'title')
 
     .sort({ createdAt: -1 });
@@ -49,7 +49,7 @@ exports.getCommentsByPost = catchAsync(async (req, res) => {
     }
 
     const comments = await Comment.find(filter)
-      .populate('user', 'username')
+      .populate('user', 'username avatar')
       .sort({ createdAt: -1 });
 
     res.json(comments);
@@ -57,7 +57,7 @@ exports.getCommentsByPost = catchAsync(async (req, res) => {
 exports.getCommentById = catchAsync(async (req, res, next) => {
     const comment = await Comment.findById(req.params.id)
 
-        .populate('user', 'username')
+        .populate('user', 'username avatar')
         .populate('post', 'title');
 
     if (!comment) {
@@ -178,7 +178,7 @@ exports.rejectComment = catchAsync(async (req, res, next) => {
 
 exports.getPendingComments = catchAsync(async (req, res) => {
     const comments = await Comment.find({status: 'pending'})
-        .populate('user', 'username')
+        .populate('user', 'username avatar')
         .populate('post', 'title')
         .sort({ createdAt: -1 });
     res.json(comments);

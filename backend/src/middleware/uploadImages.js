@@ -8,7 +8,10 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
 
     let folder = path.join(__dirname, '../../uploads/misc');
-
+    
+    if (req.baseUrl.includes('/users')) {
+      folder = path.join(__dirname, '../../uploads/users');
+    }
     if (req.baseUrl.includes('/posts')) {
       folder = path.join(__dirname, '../../uploads/posts');
     }

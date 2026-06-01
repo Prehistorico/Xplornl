@@ -8,13 +8,8 @@ export default function EmailWarning({
       <div className="email-modal">
 
         <div className="email-header">
-          <div className="email-icon">
-            i
-          </div>
-
-          <h2>
-            Debes verificar tu correo antes de iniciar sesión.
-          </h2>
+          <div className="email-icon">i</div>
+          <h2>Debes verificar tu correo antes de iniciar sesión.</h2>
         </div>
 
         <p className="email-message">

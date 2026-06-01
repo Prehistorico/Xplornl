@@ -48,7 +48,9 @@
 .hero-btn {
   background: var(--principal-color);
   color: #fff;
+  display: flex;
   border: none;
+  gap: 10px;
   padding: 14px 34px;
   border-radius: var(--radius-pill);
   font-size: 16px;
@@ -62,6 +64,17 @@
   background: var(--principal-hover);
   transform: translateY(-2px);
   box-shadow: 0 8px 24px var(--principal-shadow);
+}
+
+.home-community-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
 }
 
 @media (max-width: 1024px) {

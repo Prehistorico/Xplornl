@@ -38,7 +38,12 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
   };
 
   const handleImages = (e) => {
-    setImages(Array.from(e.target.files).slice(0, 3));
+    const newFiles = Array.from(e.target.files);
+
+    setImages((prev) => {
+      const combined = [...prev, ...newFiles];
+      return combined.slice(0, 4);
+    });
   };
 
   const handleSubmit = async () => {
@@ -105,7 +110,20 @@ const CreatePostModal = ({ onClose, onPostCreated }) => {
           <small>El límite de fotos es 3</small>
           <div className="multimedia-preview">
             {images.map((file, i) => (
-              <img key={i} src={URL.createObjectURL(file)} alt={`preview-${i}`} />
+              <div key={i} className="preview-item">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`preview-${i}`}
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setImages(images.filter((_, index) => index !== i))
+                  }
+                >✕
+                </button>
+              </div>
             ))}
           </div>
         </div>

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const appError = require('../utils/appError');
+const containsBannedWords = require('../utils/containsBannedWords');
 
 exports.validateCreateComment = (req, res, next) => {
   const { post, description } = req.body;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import CreatePostModal from "../CreatePostModal/CreatePostModal";
+import UserAvatar from "../../Shared/EditProfileModal/UserAvatar";
 
 const storedUser = () => JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -8,13 +9,19 @@ const NewPost = ({ onPostCreated }) => {
   const user = storedUser();
   const initials = (user.username || 'US').slice(0, 2).toUpperCase();
 
+  const currentUser = JSON.parse(
+    localStorage.getItem("user") || "{}"
+  );
+
+  const currentUserId =
+    currentUser.id || currentUser._id;
+
+
   return (
     <>
       <div className="post-container">
         <div className="post-typy" onClick={() => setOpen(true)}>
-          <div style={{ width:40, height:40, borderRadius:'50%', background:'#E8A87C', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'0.9rem', color:'#2b1a0e', flexShrink:0 }}>
-            {initials}
-          </div>
+          <UserAvatar user={currentUser} size={35} />
           <input
             type="text"
             placeholder="Cuéntanos sobre tu última aventura..."

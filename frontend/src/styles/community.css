@@ -53,11 +53,15 @@
 .post-info h2 {
   font-size: 20px;
   font-weight: bold;
-  margin: 10px 0;
+  margin: 10px;
 }
 
 .post-info p {
-  margin-top: 30px;
+    margin: 30px 0px;
+}
+
+.post-tags{
+  margin: 15px 0px;
 }
 
 .post-tags span {
@@ -65,7 +69,7 @@
   color: var(--principal-color);
   padding: 5px 10px;
   border-radius: var(--radius-lg);
-  margin-right: 5px;
+  margin-right: 10px;
   font-size: 14px;
 }
 
@@ -78,7 +82,7 @@
 .post-stats {
   display: flex;
   gap: 25px;
-  margin: 30px 20px 20px 0;
+  margin: 15px 20px 15px 0;
   color: var(--text-muted);
 }
 
@@ -91,4 +95,126 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.post-carousel {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.post-carousel img {
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+  animation: imageFade 0.35s ease;
+}
+
+@keyframes imageFade {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.carousel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+  border: none;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(5px);
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.9);
+  opacity: 0;
+  visibility: hidden;
+
+  transition:
+    opacity .25s ease,
+    left .25s ease,
+    right .25s ease,
+    transform .25s ease;
+}
+
+.post-carousel:hover .carousel-btn {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) scale(1);
+}
+
+.carousel-btn:hover {
+  background: var(--principal-color);
+  transform: translateY(-50%) scale(1.12);
+}
+
+.carousel-btn.left {
+  left: -60px;
+}
+.carousel-btn.right {
+  right: -60px;
+}
+.post-carousel:hover .carousel-btn.left {
+  left: 15px;
+}
+.post-carousel:hover .carousel-btn.right {
+  right: 15px;
+}
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+
+  background: #cfcfcf;
+
+  transition: all .25s ease;
+}
+
+.dot.active {
+  width: 22px;
+  background: var(--principal-color);
+}
+
+.highlight-post {
+  animation: highlightPost 3s ease;
+}
+
+.post-avatar-img,
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+@keyframes highlightPost {
+  0% {
+    box-shadow: 0 0 0 4px rgba(255, 106, 0, 0.6);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 106, 0, 0);
+  }
 }

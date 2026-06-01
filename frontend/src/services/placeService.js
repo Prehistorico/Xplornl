@@ -14,3 +14,16 @@ export const getPlaces = async () => {
   if (!response.ok) {throw new Error(data.message || 'Error obteniendo lugares');}
   return data;
 };
+
+export const getPlaceById = async (id) => {
+  const token = localStorage.getItem('token');
+
+  const response = await fetch(`${API_URL}/${id}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) throw new Error(data.message || 'Error obteniendo lugar');
+  return data;
+};
