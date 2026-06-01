@@ -20,9 +20,9 @@ export default function Card({ name, zone, type, rating, img, description, id })
       <div className="place-card">
         <div className="place-card-img-wrap">
           <img src={img} alt={name} className="place-card-img" />
-          <span className="place-card-badge">
+          {/* <span className="place-card-badge">
             <StarIcon /> {rating}
-          </span>
+          </span> */}
         </div>
         <div className="place-card-body">
           <div className="place-card-top">

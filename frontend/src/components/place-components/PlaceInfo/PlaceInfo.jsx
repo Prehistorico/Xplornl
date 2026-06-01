@@ -20,7 +20,7 @@ export default function PlaceInfo({ placeId }) {
             <h1>{place.name}</h1>
             <p className="place-category">{place.category?.name}</p>
           </div>
-          <div className="place-rating">★ {place.rating?.average ?? 0}</div>
+          {/* <div className="place-rating">★ {place.rating?.average ?? 0}</div> */}
         </div>
 
         <p className="place-desc">{place.description}</p>

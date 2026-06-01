@@ -149,7 +149,7 @@ export default function Home() {
 
       <div className="home-page">
         <Zones />
-        {/* <CategExplor /> */}
+         <CategExplor /> 
 
         <section className="home-section">
           <h2 className="home-section-title">Nuestras recomendaciónes para tí...</h2>

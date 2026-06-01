@@ -25,9 +25,9 @@ export default function PlaceCard({ place }) {
           alt={place.name}
           className="place-card-img"
         />
-        <span className="place-card-badge">
+       {/*  <span className="place-card-badge">
           <StarIcon /> {place.rating?.average || 0}
-        </span>
+        </span> */}
       </div>
       <div className="place-card-body">
         <div className="place-card-top">
